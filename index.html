@@ -4,28 +4,28 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#0f172a" />
+  <meta name="description" content="Diet Control – מעקב ארוחות, אימונים ומשקל" />
+  <link rel="manifest" href="./manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="./icons/icon-192.png" />
   <title>Diet Control</title>
-  <link rel="manifest" href="manifest.webmanifest" />
-  <link rel="apple-touch-icon" href="icons/icon-192.png" />
-  <meta name="mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-  <meta name="apple-mobile-web-app-title" content="Diet Control" />
-
   <style>
     :root{
       --bg:#f5f7fb;--card:#fff;--text:#0f172a;--muted:#64748b;--primary:#2563eb;
       --danger:#dc2626;--ok:#15803d;--border:#e2e8f0;--content-max:1400px;
       --page-gap:clamp(10px,2vw,20px);--card-pad:clamp(12px,2vw,20px)
     }
-    [data-theme="dark"]{--bg:#0b1220;--card:#111827;--text:#f8fafc;--muted:#94a3b8;--primary:#60a5fa;--danger:#f87171;--ok:#4ade80;--border:#243244}
     *,*::before,*::after{box-sizing:border-box}
     html{width:100%;max-width:100%;overflow-x:hidden;font-size:130%;scroll-padding-bottom:110px}
     body{width:100%;max-width:100%;margin:0;overflow-x:hidden;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text);font-weight:700;line-height:1.45;-webkit-text-size-adjust:100%;text-size-adjust:100%}
-    header{position:sticky;top:0;z-index:20;width:100%;background:var(--card);border-bottom:1px solid var(--border);padding:12px max(12px,env(safe-area-inset-right)) 12px max(12px,env(safe-area-inset-left));display:flex;align-items:center;justify-content:space-between;gap:10px}
+    header{position:sticky;top:0;z-index:20;width:100%;padding:10px max(12px,env(safe-area-inset-right)) 10px max(12px,env(safe-area-inset-left));background:rgba(255,255,255,.94);border-bottom:1px solid rgba(148,163,184,.28);box-shadow:0 8px 24px rgba(15,23,42,.07);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+    .brand-shell{width:100%;max-width:var(--content-max);margin:0 auto;display:flex;align-items:center;justify-content:center;gap:0;min-width:0;text-align:center}
+    .brand-mark{width:52px;height:52px;flex:0 0 52px;border-radius:16px;display:grid;place-items:center;color:#fff;background:linear-gradient(145deg,#2563eb 0%,#1d4ed8 48%,#0f766e 100%);box-shadow:0 10px 22px rgba(37,99,235,.24),inset 0 1px 0 rgba(255,255,255,.35);font:900 18px/1 Arial,Helvetica,sans-serif;letter-spacing:-.6px;position:relative;overflow:hidden}
+    .brand-mark::after{content:none}.brand-icon{object-fit:cover;padding:0;background:none;border:0}
+    .brand-copy{min-width:0;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center}
     h1,h2,h3,.kpi b,.status{font-weight:800}
-    h1{font-size:clamp(22px,3vw,28px);margin:0;line-height:1.2}
-    .app-subtitle{font-size:16px;font-weight:600;color:var(--muted);margin-top:3px;line-height:1.3}
+    h1{font-size:clamp(24px,3.2vw,32px);margin:0;line-height:1;letter-spacing:-.8px;color:#0f172a}
+    .brand-accent{color:#2563eb}
+    .app-subtitle{font-size:clamp(13px,1.6vw,16px);font-weight:700;color:#64748b;margin-top:6px;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .wrap{width:100%;max-width:var(--content-max);margin:0 auto;padding:var(--page-gap) max(var(--page-gap),env(safe-area-inset-right)) calc(104px + env(safe-area-inset-bottom)) max(var(--page-gap),env(safe-area-inset-left))}
     .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--page-gap)}
     .card{width:100%;min-width:0;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:var(--card-pad);box-shadow:0 4px 16px rgba(15,23,42,.05);overflow-wrap:anywhere}
@@ -64,7 +64,6 @@
       :root{--page-gap:10px;--card-pad:12px}
       header{padding-top:10px;padding-bottom:10px}
       h1{font-size:28.6px}
-      #themeBtn{width:auto;min-height:46px;font-size:19.5px;padding:9px 11px;flex:0 0 auto}
       .wrap{padding-top:10px;padding-bottom:calc(94px + env(safe-area-inset-bottom))}
       .grid,.form-grid{grid-template-columns:1fr;gap:10px}
       .full{grid-column:auto}
@@ -493,14 +492,6 @@ main, .wrap, .app-container { padding-bottom: 140px !important; }
   --soft-warning:rgba(217,119,6,.14);
   --shadow:0 12px 30px rgba(15,23,42,.09);
 }
-[data-theme="dark"]{
-  --surface-2:#162033;
-  --soft-primary:rgba(96,165,250,.16);
-  --soft-ok:rgba(74,222,128,.14);
-  --soft-danger:rgba(248,113,113,.14);
-  --soft-warning:rgba(251,191,36,.14);
-  --shadow:0 14px 34px rgba(0,0,0,.28);
-}
 body{background:linear-gradient(180deg,var(--bg),color-mix(in srgb,var(--bg) 92%,var(--primary) 8%)) fixed!important}
 header{box-shadow:0 4px 20px rgba(15,23,42,.06)!important;backdrop-filter:blur(14px)}
 .card,.panel,.form-section,.summary-card,.metric-card,.stat-card,.item{
@@ -609,14 +600,6 @@ nav button.active{background:var(--soft-primary)!important;color:var(--primary)!
   --premium-gap:20px;
   --premium-section-gap:28px;
   --premium-focus:0 0 0 4px rgba(37,99,235,.16);
-}
-[data-theme="dark"]{
-  --premium-bg:#07101f;
-  --premium-card:rgba(17,24,39,.96);
-  --premium-card-strong:#111827;
-  --premium-shadow:0 12px 32px rgba(0,0,0,.30),0 2px 8px rgba(0,0,0,.22);
-  --premium-shadow-hover:0 18px 44px rgba(0,0,0,.38);
-  --premium-focus:0 0 0 4px rgba(96,165,250,.20);
 }
 html{font-size:100%!important;scroll-behavior:smooth}
 body{
@@ -1009,13 +992,25 @@ nav button span,.bottom-nav span,.nav-label{font-size:20px!important;font-weight
 .workout-save-actions button{width:100%;min-height:50px;font-size:17px;font-weight:800}
 @media(max-width:760px){.workout-simple-grid{grid-template-columns:1fr}.workout-note-field{grid-column:auto}}
 
-    #installPwaBtn{display:none;background:#16a34a;color:#fff;min-height:46px;padding:9px 13px;font-size:17px;white-space:nowrap}
-    #installPwaBtn.show{display:inline-flex;align-items:center;justify-content:center}
-    @media (max-width:499px){#installPwaBtn{font-size:18px;padding:8px 10px}}
+    @media (max-width:499px){
+      .brand-shell{gap:0}
+      .brand-mark{width:46px;height:46px;flex-basis:46px;border-radius:14px;font-size:16px}
+      h1{font-size:25px}
+      .app-subtitle{font-size:13px!important;margin-top:5px}
+    }
+
 </style>
 </head>
 <body>
-<header><div><h1>Diet Control</h1><div class="app-subtitle">מעקב יומי, ארוחות חכמות, אימונים ומגמת משקל</div></div><div class="right"><button id="installPwaBtn" type="button">התקן אפליקציה</button><button id="themeBtn" class="secondary icon">מצב כהה</button></div></header>
+<script>document.documentElement.removeAttribute('data-theme');</script>
+<header>
+  <div class="brand-shell">
+    <div class="brand-copy">
+      <h1>Diet <span class="brand-accent">Control</span></h1>
+      <div class="app-subtitle">תזונה, אימונים ומשקל — במקום אחד</div>
+    </div>
+  </div>
+</header>
 <div class="wrap">
   <section id="home" class="page active">
     <div class="today-page-title"><h2>היום</h2><div class="today-page-hint">כל מה שחשוב להיום, במקום אחד</div></div>
@@ -1226,7 +1221,7 @@ nav button span,.bottom-nav span,.nav-label{font-size:20px!important;font-weight
 <script>
 const $=id=>document.getElementById(id); const today=()=>{const d=new Date(),pad=n=>String(n).padStart(2,'0');return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`}; const nowTime=()=>new Date().toTimeString().slice(0,5); const nowDateTime=()=>{const d=new Date(),pad=n=>String(n).padStart(2,'0');return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`};
 const storeKey='calorieTrackerLocalV1';
-let db=JSON.parse(localStorage.getItem(storeKey)||'null')||{meals:[],workouts:[],weights:[],settings:{goalRest:1700,goalStrength:1900,goalBasketball:2100,goalCardio:2000,startWeight:100,targetWeight:95,balanceMethod:'goal',tdee:2300,exercisePercent:0},theme:'light'};
+let db=JSON.parse(localStorage.getItem(storeKey)||'null')||{meals:[],workouts:[],weights:[],settings:{goalRest:1700,goalStrength:1900,goalBasketball:2100,goalCardio:2000,startWeight:100,targetWeight:95,balanceMethod:'goal',tdee:2300,exercisePercent:0}};
 if(!Array.isArray(db.foodLibrary))db.foodLibrary=[];
 function save(){localStorage.setItem(storeKey,JSON.stringify(db));renderAll()}
 function saveLocalOnly(){localStorage.setItem(storeKey,JSON.stringify(db))}
@@ -1306,7 +1301,7 @@ function drawChart(){
   ctx.fillStyle=text;ctx.font='700 15px Arial';ctx.textAlign='center';const step=Math.max(1,Math.ceil(arr.length/5));arr.forEach((x,i)=>{if(i%step===0||i===arr.length-1)ctx.fillText(x.date.slice(5),xy(+x.value,i)[0],H-14)});
 }
 function renderSettings(){for(const k of Object.keys(db.settings))if($(k))$(k).value=db.settings[k];const end=new Date(),start=new Date();start.setDate(end.getDate()-6);let eaten=0,burn=0,net=0,remaining=0,targets=0,mins=0,count=0,days=0;for(let d=new Date(start);d<=end;d.setDate(d.getDate()+1)){const x=calorieBalance(d.toISOString().slice(0,10));eaten+=x.caloriesEaten;burn+=x.exerciseCalories;net+=x.netCalories;remaining+=x.remainingCalories;targets+=x.dailyTarget;mins+=x.workouts.reduce((a,w)=>a+(+w.minutes||0),0);count+=x.workouts.length;days++}const avg=n=>Math.round(n/Math.max(1,days));const balanceText=avg(remaining)>=0?`ממוצע נותר ליעד: <b>${avg(remaining)}</b>`:`ממוצע חריגה נטו: <b>${Math.abs(avg(remaining))}</b>`;$('weeklySummary').innerHTML=`ממוצע יעד יומי קבוע: <b>${avg(targets)}</b><br>ממוצע קלוריות שנאכלו: <b>${avg(eaten)}</b><br>ממוצע קלוריות אימון: <b>${avg(burn)}</b><br>ממוצע קלוריות נטו: <b>${avg(net)}</b><br>${balanceText}<br>מספר אימונים: <b>${count}</b><br>משך אימונים: <b>${mins} דקות</b>`}
-function renderAll(){renderHome();renderMeals();renderWorkouts();renderWeights();renderSettings();document.documentElement.dataset.theme=db.theme;$('themeBtn').textContent=db.theme==='dark'?'מצב בהיר':'מצב כהה'}
+function renderAll(){renderHome();renderMeals();renderWorkouts();renderWeights();renderSettings()}
 window.del=(type,id)=>{if(confirm('למחוק את הרשומה?')){db[type]=db[type].filter(x=>x.id!==id);save()}};window.duplicateMeal=id=>{const x=db.meals.find(m=>m.id===id);if(x){db.meals.push({...x,id:uid(),date:$('mealDate').value||today()});save()}}
 $('saveMeal').onclick=()=>{syncMealDateTime();const pending=getManualEntry();if(pending.name||pending.qty||pending.kcal){if(pending.name&&pending.kcal>0)saveManualFoodItem();else{return setManualStatus('יש להשלים את הפריט הנוכחי לפני שמירת הארוחה.','error')}}const rows=getManualFoodRows();if(!rows.length)return setManualStatus('יש להוסיף לפחות פריט אחד לארוחה.','error');const total=Math.round(rows.reduce((sum,row)=>sum+row.kcal,0));const desc=rows.map(row=>`${row.name}${row.qty?' — '+row.qty:''}`).join(', ');db.meals.push({id:uid(),date:$('mealDate').value,time:$('mealTime').value,type:$('mealType').value,desc,calories:total,protein:0,note:''});save();renderMeals();clearManualFoodTable(true);const summary=$('dailyMealSummary');if(summary){summary.classList.remove('summary-updated');void summary.offsetWidth;summary.classList.add('summary-updated')}setManualStatus('הארוחה נשמרה בהצלחה. אפשר להתחיל להזין את הארוחה הבאה.','success');$('manualFoodName').focus()};
 $('copyYesterday').onclick=()=>{syncMealDateTime();const d=new Date($('mealDate').value+'T00:00:00');d.setDate(d.getDate()-1);const y=d.toISOString().slice(0,10),dest=$('mealDate').value,items=db.meals.filter(x=>x.date===y);if(!items.length)return alert('לא נמצאו ארוחות מאתמול');items.forEach(x=>db.meals.push({...x,id:uid(),date:dest}));save()};
@@ -1316,7 +1311,6 @@ $('saveSettings').onclick=()=>{for(const k of Object.keys(db.settings))if($(k))d
 $('exportData').onclick=()=>{const blob=new Blob([JSON.stringify(db,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='calorie-tracker-backup.json';a.click();URL.revokeObjectURL(a.href)};
 $('importData').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{db=JSON.parse(r.result);save();alert('הגיבוי יובא בהצלחה')}catch{alert('קובץ גיבוי לא תקין')}};r.readAsText(f)};
 $('clearData').onclick=()=>{if(confirm('למחוק את כל הנתונים לצמיתות?')){localStorage.removeItem(storeKey);location.reload()}};
-$('themeBtn').onclick=()=>{db.theme=db.theme==='dark'?'light':'dark';save()};
 function syncMealDateTime(){const value=$('mealDateTime').value||nowDateTime();const [date,time]=value.split('T');$('mealDate').value=date||today();$('mealTime').value=(time||nowTime()).slice(0,5)}
 function syncWorkoutDateTime(){const value=$('workoutDateTime').value||nowDateTime();const [date,time]=value.split('T');$('workoutDate').value=date||today();$('workoutTime').value=(time||nowTime()).slice(0,5)}
 $('viewDate').onchange=renderHome;$('mealDate').onchange=renderMeals;
@@ -1386,26 +1380,10 @@ window.addEventListener('pageshow',()=>{const currentToday=today();if($('viewDat
 </script>
 
 <script>
-let deferredInstallPrompt=null;
-const installPwaBtn=document.getElementById('installPwaBtn');
-window.addEventListener('beforeinstallprompt',(event)=>{
-  event.preventDefault();
-  deferredInstallPrompt=event;
-  installPwaBtn?.classList.add('show');
-});
-installPwaBtn?.addEventListener('click',async()=>{
-  if(!deferredInstallPrompt)return;
-  deferredInstallPrompt.prompt();
-  await deferredInstallPrompt.userChoice;
-  deferredInstallPrompt=null;
-  installPwaBtn.classList.remove('show');
-});
-window.addEventListener('appinstalled',()=>{
-  deferredInstallPrompt=null;
-  installPwaBtn?.classList.remove('show');
-});
-if('serviceWorker' in navigator && location.protocol.startsWith('http')){
-  window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(console.error));
+if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').catch(console.error);
+  });
 }
 </script>
 </body>
