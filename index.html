@@ -1,0 +1,1412 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0f172a" />
+  <title>Diet Control</title>
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Diet Control" />
+
+  <style>
+    :root{
+      --bg:#f5f7fb;--card:#fff;--text:#0f172a;--muted:#64748b;--primary:#2563eb;
+      --danger:#dc2626;--ok:#15803d;--border:#e2e8f0;--content-max:1400px;
+      --page-gap:clamp(10px,2vw,20px);--card-pad:clamp(12px,2vw,20px)
+    }
+    [data-theme="dark"]{--bg:#0b1220;--card:#111827;--text:#f8fafc;--muted:#94a3b8;--primary:#60a5fa;--danger:#f87171;--ok:#4ade80;--border:#243244}
+    *,*::before,*::after{box-sizing:border-box}
+    html{width:100%;max-width:100%;overflow-x:hidden;font-size:130%;scroll-padding-bottom:110px}
+    body{width:100%;max-width:100%;margin:0;overflow-x:hidden;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text);font-weight:700;line-height:1.45;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+    header{position:sticky;top:0;z-index:20;width:100%;background:var(--card);border-bottom:1px solid var(--border);padding:12px max(12px,env(safe-area-inset-right)) 12px max(12px,env(safe-area-inset-left));display:flex;align-items:center;justify-content:space-between;gap:10px}
+    h1,h2,h3,.kpi b,.status{font-weight:800}
+    h1{font-size:clamp(22px,3vw,28px);margin:0;line-height:1.2}
+    .app-subtitle{font-size:16px;font-weight:600;color:var(--muted);margin-top:3px;line-height:1.3}
+    .wrap{width:100%;max-width:var(--content-max);margin:0 auto;padding:var(--page-gap) max(var(--page-gap),env(safe-area-inset-right)) calc(104px + env(safe-area-inset-bottom)) max(var(--page-gap),env(safe-area-inset-left))}
+    .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--page-gap)}
+    .card{width:100%;min-width:0;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:var(--card-pad);box-shadow:0 4px 16px rgba(15,23,42,.05);overflow-wrap:anywhere}
+    .kpi b{display:block;font-size:clamp(28px,4vw,36px);margin-top:6px;line-height:1.1}
+    .muted{color:var(--muted);font-size:clamp(15px,2vw,18px);font-weight:700}
+    .section{margin-top:clamp(14px,2.2vw,24px)}
+    .section h2,.page>h2{font-size:clamp(22px,3vw,28px);margin:0 0 12px}
+    button,.btn{min-height:50px;max-width:100%;border:0;border-radius:12px;padding:12px 16px;font:700 clamp(17px,2vw,19px)/1.2 Arial,Helvetica,sans-serif;cursor:pointer;background:var(--primary);color:#fff;touch-action:manipulation;white-space:normal}
+    .secondary{background:transparent;color:var(--text);border:1px solid var(--border)}
+    .danger{background:var(--danger)}
+    input,select,textarea{width:100%;min-width:0;min-height:50px;padding:12px 14px;border-radius:10px;border:1px solid var(--border);background:var(--card);color:var(--text);font:700 clamp(17px,2vw,19px)/1.3 Arial,Helvetica,sans-serif}
+    textarea{resize:vertical}
+    label{display:block;font-size:clamp(15px,1.8vw,18px);font-weight:700;color:var(--muted);margin-bottom:6px}
+    .form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+    .full{grid-column:1/-1}
+    .actions{display:flex;gap:10px;flex-wrap:wrap;align-items:stretch}
+    .actions>*{flex:1 1 180px}
+    .list{display:flex;flex-direction:column;gap:10px}
+    .item{width:100%;min-width:0;border:1px solid var(--border);border-radius:12px;padding:12px;display:flex;justify-content:space-between;gap:12px;align-items:center;background:var(--card)}
+    .item-main{min-width:0;flex:1}
+    .item-title{font-size:clamp(17px,2vw,20px);font-weight:800;overflow-wrap:anywhere}
+    .item-sub{font-size:clamp(15px,1.8vw,18px);font-weight:700;color:var(--muted);margin-top:4px;overflow-wrap:anywhere}
+    nav{position:fixed;bottom:0;left:0;right:0;width:100%;z-index:30;background:var(--card);border-top:1px solid var(--border);display:grid;grid-template-columns:repeat(5,minmax(0,1fr));padding-bottom:env(safe-area-inset-bottom)}
+    nav button{min-width:0;min-height:58px;background:transparent;color:var(--muted);border-radius:0;padding:9px 3px;font-size:clamp(13px,1.8vw,17px);line-height:1.15}
+    nav button.active{color:var(--primary);font-weight:800}
+    .page{display:none;min-width:0}.page.active{display:block}
+    .bar{height:12px;background:var(--border);border-radius:99px;overflow:hidden}.bar>span{display:block;height:100%;background:var(--primary);width:0}
+    .status{font-size:clamp(23px,3vw,31px)!important}.status.ok{color:var(--ok)}.status.bad{color:var(--danger)}
+    canvas{display:block;width:100%;max-width:100%;height:auto;min-height:220px;background:var(--card);border-radius:12px}
+    .small{font-size:18.2px}.right{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}.icon{min-height:46px;padding:9px 12px;font-size:19.5px}
+    #lastWeight{font-size:clamp(27px,4vw,34px)!important;font-weight:800!important}
+    #todayWorkout,#weeklySummary{font-size:clamp(17px,2vw,20px)}
+
+    /* מסך חיצוני צר של Fold */
+    @media (max-width:499px){
+      :root{--page-gap:10px;--card-pad:12px}
+      header{padding-top:10px;padding-bottom:10px}
+      h1{font-size:28.6px}
+      #themeBtn{width:auto;min-height:46px;font-size:19.5px;padding:9px 11px;flex:0 0 auto}
+      .wrap{padding-top:10px;padding-bottom:calc(94px + env(safe-area-inset-bottom))}
+      .grid,.form-grid{grid-template-columns:1fr;gap:10px}
+      .full{grid-column:auto}
+      .card{border-radius:14px}
+      .kpi b{font-size:39px}
+      .section h2,.page>h2{font-size:29.9px}
+      button,.btn,input,select,textarea{font-size:23.4px}
+      .actions{display:grid;grid-template-columns:1fr;gap:8px}
+      .actions>*{width:100%;min-width:0}
+      .item{align-items:stretch;flex-direction:column}
+      .right{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));width:100%}
+      .right>*{width:100%}
+      .item>button{width:100%}
+      nav button{min-height:60px;font-size:16.9px;padding-inline:2px}
+      canvas{min-height:200px}
+    }
+
+    /* מצב ביניים / קיפול חלקי */
+    @media (min-width:500px) and (max-width:699px){
+      .grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+      .form-grid{grid-template-columns:1fr}
+      .full{grid-column:auto}
+      .actions>*{flex:1 1 calc(50% - 10px)}
+      .item{align-items:flex-start}
+    }
+
+    /* המסך הפנימי הפתוח */
+    @media (min-width:700px){
+      .grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+      .form-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+      .actions>*{flex:0 1 auto}
+      nav{left:50%;right:auto;transform:translateX(-50%);max-width:min(var(--content-max),calc(100% - 32px));border-radius:18px 18px 0 0;overflow:hidden}
+      nav button{font-size:22.1px}
+      #home{display:none}
+      #home.active{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;align-items:start}
+      #home.active>.card:first-child,#home.active>.grid{grid-column:1/-1}
+      #home.active>.section{margin-top:0}
+      .page.active:not(#home){max-width:1200px;margin-inline:auto}
+    }
+
+    @media (min-width:1000px){
+      #home.active{grid-template-columns:repeat(3,minmax(0,1fr))}
+      #home.active>.card:first-child,#home.active>.grid{grid-column:1/-1}
+      .form-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+    }
+
+    @media (orientation:landscape) and (max-height:520px){
+      header{position:relative}
+      .wrap{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
+      nav button{min-height:50px}
+    }
+  
+
+    /* 30% typography enlargement — Fold 7 responsive override */
+    body,button,input,select,textarea,label,option,nav,.menu,.bottom-nav,
+    .bottom-nav-item,.card,.modal,.toast,.message,.item,.muted,.small{
+      font-weight:700;
+    }
+    h1,h2,h3,h4,.page-title,.card-title,.metric-value,.stat-value,
+    .summary-value,.kpi b,.status,.item-title,#lastWeight{
+      font-weight:800;
+    }
+    button,input,select,textarea,.btn{
+      min-height:52px;
+      line-height:1.25;
+    }
+    nav{
+      min-height:99px;
+      padding-bottom:max(8px,env(safe-area-inset-bottom));
+    }
+    nav button,.bottom-nav button,.bottom-nav a,.bottom-nav-item{
+      min-height:83px;
+      line-height:1.2;
+      white-space:normal;
+      overflow-wrap:anywhere;
+    }
+    button,a,label,span,p,div{overflow-wrap:anywhere}
+    @media (max-width:499px){
+      html{font-size:130%}
+      nav{min-height:107px}
+      nav button,.bottom-nav button,.bottom-nav a,.bottom-nav-item{
+        min-height:88px;
+        padding:10px 4px;
+      }
+      .card,.panel,.form-section{padding:14px}
+      main{padding-bottom:128px}
+    }
+    @media (min-width:700px){
+      html{font-size:130%}
+      .dashboard-grid,.summary-grid{gap:20px}
+    }
+
+
+    /* הגדלת פונטים בפועל — דריסה סופית לכל רכיבי הממשק */
+    body, header, main, section,
+    button, input, select, textarea, label, option,
+    .card, .stat-card, .metric-card, .panel, .item,
+    .message, .toast, .modal, .muted, .small {
+      font-size: 19px !important;
+      font-weight: 700 !important;
+    }
+
+    h1, h2, h3, h4,
+    .page-title, .card-title, .section-title,
+    .metric-value, .stat-value, .summary-value, .dashboard-value,
+    .kpi b, .status, #lastWeight {
+      font-weight: 800 !important;
+    }
+
+    header h1, .page-title, h1 {
+      font-size: 29px !important;
+      line-height: 1.2 !important;
+    }
+
+    h2, .section-title {
+      font-size: 25px !important;
+    }
+
+    .card-title, .metric-label, .stat-label,
+    .kpi .muted, .card > .muted, label {
+      font-size: 21px !important;
+      font-weight: 700 !important;
+    }
+
+    .metric-value, .stat-value, .summary-value, .dashboard-value,
+    .kpi b, .status, #lastWeight {
+      font-size: 38px !important;
+      line-height: 1.12 !important;
+    }
+
+    button, input, select, textarea {
+      min-height: 56px !important;
+      font-size: 20px !important;
+      font-weight: 700 !important;
+    }
+
+    nav, .bottom-nav {
+      min-height: 92px !important;
+      height: auto !important;
+      padding: 7px 4px calc(7px + env(safe-area-inset-bottom)) !important;
+    }
+
+    nav button,
+    .bottom-nav button, .bottom-nav a, .bottom-nav-item, .nav-item {
+      min-height: 78px !important;
+      height: auto !important;
+      font-size: 18px !important;
+      font-weight: 800 !important;
+      line-height: 1.15 !important;
+      padding: 8px 3px !important;
+      white-space: normal !important;
+      overflow-wrap: normal !important;
+      word-break: keep-all !important;
+    }
+
+    .bottom-nav .nav-label, .bottom-nav span, .nav-label {
+      font-size: 18px !important;
+      font-weight: 800 !important;
+      line-height: 1.15 !important;
+      display: block !important;
+    }
+
+    .bottom-nav .nav-icon, .nav-icon {
+      font-size: 26px !important;
+      width: 28px !important;
+      height: 28px !important;
+    }
+
+    @media (max-width: 500px) {
+  .app-subtitle{font-size:15px!important;}
+      body, main, section, .card, .item, .muted, .small {
+        font-size: 20px !important;
+      }
+
+      .wrap, .app-container, main {
+        padding-left: 10px !important;
+        padding-right: 10px !important;
+        padding-bottom: 118px !important;
+      }
+
+      header h1, .page-title, h1 {
+        font-size: 27px !important;
+      }
+
+      h2, .section-title {
+        font-size: 24px !important;
+      }
+
+      .card-title, .metric-label, .stat-label,
+      .kpi .muted, .card > .muted, label {
+        font-size: 20px !important;
+      }
+
+      .metric-value, .stat-value, .summary-value, .dashboard-value,
+      .kpi b, .status, #lastWeight {
+        font-size: 36px !important;
+      }
+
+      button, input, select, textarea {
+        font-size: 20px !important;
+        min-height: 58px !important;
+      }
+
+      nav, .bottom-nav {
+        min-height: 96px !important;
+      }
+
+      nav button,
+      .bottom-nav button, .bottom-nav a, .bottom-nav-item, .nav-item {
+        min-height: 82px !important;
+        font-size: 18px !important;
+        padding: 8px 2px !important;
+      }
+
+      .bottom-nav .nav-label, .bottom-nav span, .nav-label {
+        font-size: 18px !important;
+      }
+    }
+
+    @media (min-width: 700px) {
+      body, main, section, .card, .item, .muted, .small {
+        font-size: 19px !important;
+      }
+
+      nav button,
+      .bottom-nav .nav-label, .nav-label {
+        font-size: 18px !important;
+      }
+
+      .metric-value, .stat-value, .summary-value,
+      .kpi b, .status, #lastWeight {
+        font-size: 40px !important;
+      }
+    }
+
+  
+
+/* הגדלת פונטי התפריט התחתון ב-60% ביחס ל-18px */
+.bottom-nav .nav-label,
+.bottom-nav span,
+.bottom-nav button,
+.bottom-nav a,
+.bottom-nav-item,
+.nav-item,
+.nav-label {
+  font-size: 29px !important;
+  font-weight: 800 !important;
+  line-height: 1.15 !important;
+  white-space: normal !important;
+  overflow-wrap: normal !important;
+  word-break: keep-all !important;
+}
+
+.bottom-nav {
+  min-height: 122px !important;
+  padding-top: 8px !important;
+  padding-bottom: calc(8px + env(safe-area-inset-bottom)) !important;
+}
+
+.bottom-nav button,
+.bottom-nav a,
+.bottom-nav-item,
+.nav-item {
+  min-height: 106px !important;
+  padding: 8px 2px !important;
+}
+
+@media (max-width: 500px) {
+  .app-subtitle{font-size:15px!important;}
+  .bottom-nav .nav-label,
+  .bottom-nav span,
+  .bottom-nav button,
+  .bottom-nav a,
+  .bottom-nav-item,
+  .nav-item,
+  .nav-label {
+    font-size: 29px !important;
+  }
+
+  .bottom-nav {
+    min-height: 128px !important;
+  }
+
+  main, .app-container {
+    padding-bottom: 145px !important;
+  }
+}
+
+
+/* תיקון סופי: פונטים גדולים בכל מסכי המשנה ובתפריט התחתון */
+body, header, main, section, .wrap, .page, .card, .panel, .form-grid,
+label, input, select, option, textarea, button, .btn, .list, .item,
+.item-main, .item-title, .item-sub, .muted, .status, .message, .toast,
+.modal, .actions, .weekly-summary, #weeklySummary {
+  font-size: 21px !important;
+  font-weight: 700 !important;
+  line-height: 1.35 !important;
+}
+
+header h1, h1, h2, h3, h4, .page-title, .section-title, .card-title {
+  font-size: 30px !important;
+  font-weight: 800 !important;
+  line-height: 1.2 !important;
+}
+
+.page > h2, .section > h2, .card > h2 {
+  font-size: 29px !important;
+  font-weight: 800 !important;
+}
+
+label, .muted, .item-sub {
+  font-size: 21px !important;
+  font-weight: 700 !important;
+}
+
+input, select, textarea {
+  width: 100% !important;
+  min-height: 64px !important;
+  font-size: 22px !important;
+  font-weight: 700 !important;
+  padding: 14px 16px !important;
+}
+
+textarea { min-height: 110px !important; }
+
+button, .btn {
+  min-height: 62px !important;
+  font-size: 22px !important;
+  font-weight: 800 !important;
+  line-height: 1.2 !important;
+  white-space: normal !important;
+}
+
+.kpi span, .metric-label, .stat-label {
+  font-size: 21px !important;
+  font-weight: 700 !important;
+}
+
+.kpi b, .metric-value, .stat-value, .summary-value, .dashboard-value,
+#kGoal, #kEaten, #kRemain, #kBurn, #lastWeight, #currentWeight, #avg7 {
+  font-size: 38px !important;
+  font-weight: 800 !important;
+  line-height: 1.1 !important;
+}
+
+#dayStatus, #todayWorkout, #weeklySummary, #mealList, #workoutList, #weightList {
+  font-size: 22px !important;
+  font-weight: 700 !important;
+}
+
+.item-title, .item-title b, .item b {
+  font-size: 23px !important;
+  font-weight: 800 !important;
+}
+
+.item-sub { font-size: 20px !important; }
+
+/* התפריט בפועל בנוי מ-nav ולא מ-bottom-nav */
+nav {
+  min-height: 112px !important;
+  height: auto !important;
+  padding: 8px 4px calc(8px + env(safe-area-inset-bottom)) !important;
+}
+nav button {
+  min-height: 92px !important;
+  height: auto !important;
+  font-size: 29px !important;
+  font-weight: 800 !important;
+  line-height: 1.1 !important;
+  padding: 10px 2px !important;
+  white-space: normal !important;
+}
+
+main, .wrap, .app-container { padding-bottom: 140px !important; }
+
+@media (max-width: 500px) {
+  .app-subtitle{font-size:15px!important;}
+  body, header, main, section, .wrap, .page, .card, .form-grid,
+  label, input, select, option, textarea, button, .btn, .item,
+  .item-main, .item-title, .item-sub, .muted, .status, #weeklySummary {
+    font-size: 22px !important;
+  }
+
+  header h1, h1, h2, h3, .page-title, .section-title {
+    font-size: 30px !important;
+  }
+
+  label, .muted { font-size: 22px !important; }
+  input, select, textarea { font-size: 22px !important; min-height: 66px !important; }
+  button, .btn { font-size: 22px !important; min-height: 64px !important; }
+  .kpi b, .metric-value, .stat-value, .summary-value, .dashboard-value,
+  #kGoal, #kEaten, #kRemain, #kBurn, #lastWeight, #currentWeight, #avg7 {
+    font-size: 38px !important;
+  }
+  .item-title, .item-title b, .item b { font-size: 23px !important; }
+  .item-sub { font-size: 21px !important; }
+
+  nav { min-height: 116px !important; }
+  nav button {
+    min-height: 96px !important;
+    font-size: 29px !important;
+  }
+
+  .actions { gap: 12px !important; }
+  .actions > * { width: 100% !important; }
+  .card, .form-grid { padding: 16px !important; }
+  main, .wrap, .app-container { padding-bottom: 150px !important; }
+}
+
+@media (min-width: 700px) {
+  body, label, input, select, textarea, button, .item, .muted {
+    font-size: 21px !important;
+  }
+  nav button { font-size: 24px !important; }
+}
+
+
+
+/* ===== שדרוג ממשק סופי: טיפוגרפיה, טפסים וקוקפיט ===== */
+:root{
+  --surface-2:color-mix(in srgb,var(--card) 92%,var(--primary) 8%);
+  --soft-primary:color-mix(in srgb,var(--primary) 12%,transparent);
+  --soft-ok:color-mix(in srgb,var(--ok) 14%,transparent);
+  --soft-danger:color-mix(in srgb,var(--danger) 13%,transparent);
+  --warning:#d97706;
+  --soft-warning:rgba(217,119,6,.14);
+  --shadow:0 12px 30px rgba(15,23,42,.09);
+}
+[data-theme="dark"]{
+  --surface-2:#162033;
+  --soft-primary:rgba(96,165,250,.16);
+  --soft-ok:rgba(74,222,128,.14);
+  --soft-danger:rgba(248,113,113,.14);
+  --soft-warning:rgba(251,191,36,.14);
+  --shadow:0 14px 34px rgba(0,0,0,.28);
+}
+body{background:linear-gradient(180deg,var(--bg),color-mix(in srgb,var(--bg) 92%,var(--primary) 8%)) fixed!important}
+header{box-shadow:0 4px 20px rgba(15,23,42,.06)!important;backdrop-filter:blur(14px)}
+.card,.panel,.form-section,.summary-card,.metric-card,.stat-card,.item{
+  border-radius:24px!important;border:1px solid color-mix(in srgb,var(--border) 78%,var(--primary) 22%)!important;
+  box-shadow:var(--shadow)!important;background:var(--card)!important
+}
+.page>h2,.section>h2{display:flex;align-items:center;gap:10px;margin-bottom:18px!important}
+.page>h2::before,.section>h2::before{content:"";width:7px;height:30px;border-radius:99px;background:var(--primary);flex:0 0 auto}
+
+/* שמות שדות וטקסטי קלט — דריסה ישירה */
+label,legend,.field-label,.form-label,.input-label,
+.form-grid>div>label,.card label,.page label{
+  display:block!important;font-size:23px!important;font-weight:800!important;line-height:1.3!important;
+  margin:0 0 9px!important;color:var(--text)!important;letter-spacing:0!important;opacity:1!important
+}
+input,select,textarea,button,.btn,option{
+  font-family:Arial,Helvetica,sans-serif!important;font-size:23px!important;font-weight:700!important;
+  line-height:1.35!important;min-height:64px!important;border-radius:16px!important;padding:14px 16px!important
+}
+input,select,textarea{
+  border:2px solid var(--border)!important;background:color-mix(in srgb,var(--card) 94%,var(--bg) 6%)!important;
+  color:var(--text)!important;box-shadow:inset 0 1px 2px rgba(15,23,42,.03)!important
+}
+input:focus,select:focus,textarea:focus{outline:none!important;border-color:var(--primary)!important;box-shadow:0 0 0 4px var(--soft-primary)!important}
+textarea{min-height:130px!important}
+input::placeholder,textarea::placeholder{font-size:21px!important;font-weight:700!important;color:var(--muted)!important;opacity:1!important}
+select option{font-size:22px!important;font-weight:700!important}
+button,.btn{font-weight:800!important;box-shadow:0 8px 18px color-mix(in srgb,var(--primary) 25%,transparent)!important;transition:transform .15s ease,filter .15s ease}
+button:active,.btn:active{transform:translateY(1px) scale(.99)}
+button.secondary,.btn.secondary{box-shadow:none!important;background:var(--card)!important}
+
+/* חלוקה מודרנית של טפסים */
+.form-section{padding:20px!important;margin-bottom:18px!important}
+.form-section-title{display:flex;align-items:center;gap:10px;font-size:27px!important;font-weight:800!important;margin:0 0 18px;color:var(--text)}
+.form-section-title .section-icon{display:grid;place-items:center;width:42px;height:42px;border-radius:14px;background:var(--soft-primary);font-size:23px}
+.form-grid{gap:18px!important}
+.form-grid>div{min-width:0}
+.actions{margin-top:4px!important}
+
+/* קוקפיטים וכרטיסי KPI */
+.cockpit-hero{background:linear-gradient(135deg,var(--primary),color-mix(in srgb,var(--primary) 68%,#7c3aed 32%))!important;color:#fff!important;border:none!important}
+.cockpit-hero .muted,.cockpit-hero label{color:rgba(255,255,255,.86)!important}
+.kpi-grid,.weight-dashboard{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.dashboard-kpi{position:relative;overflow:hidden;padding:20px!important}
+.dashboard-kpi::after{content:"";position:absolute;inset:auto -28px -38px auto;width:110px;height:110px;border-radius:50%;background:var(--soft-primary)}
+.kpi-label{position:relative;z-index:1;font-size:21px!important;font-weight:800!important;color:var(--muted)}
+.kpi-value{position:relative;z-index:1;font-size:42px!important;font-weight:800!important;line-height:1.05;margin-top:8px}
+.kpi-note{position:relative;z-index:1;font-size:19px!important;font-weight:700!important;color:var(--muted);margin-top:7px}
+.progress-card{padding:22px!important}
+.progress-track{height:18px;background:var(--border);border-radius:99px;overflow:hidden;margin:16px 0 10px}
+.progress-fill{height:100%;width:0;background:linear-gradient(90deg,var(--primary),var(--ok));border-radius:99px;transition:width .3s ease}
+.progress-meta{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-size:20px!important;font-weight:800!important}
+.trend-chip{display:inline-flex;align-items:center;gap:7px;padding:9px 13px;border-radius:99px;font-size:20px!important;font-weight:800!important}
+.trend-down{background:var(--soft-ok);color:var(--ok)}.trend-flat{background:var(--soft-warning);color:var(--warning)}.trend-up{background:var(--soft-danger);color:var(--danger)}
+.weight-summary{font-size:22px!important;font-weight:800!important;line-height:1.55!important}
+.chart-toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.chart-range{min-height:48px!important;padding:8px 14px!important;font-size:19px!important;border-radius:99px!important;background:var(--card)!important;color:var(--text)!important;border:1px solid var(--border)!important;box-shadow:none!important}
+.chart-range.active{background:var(--primary)!important;color:#fff!important;border-color:var(--primary)!important}
+
+/* רשימות */
+.item{padding:18px!important}.item-title{font-size:24px!important}.item-sub{font-size:21px!important;line-height:1.45!important}
+.empty-state,.muted{font-size:20px!important;font-weight:700!important}
+
+/* תפריט תחתון */
+nav{min-height:112px!important;background:color-mix(in srgb,var(--card) 94%,transparent)!important;backdrop-filter:blur(16px);box-shadow:0 -8px 28px rgba(15,23,42,.10)!important}
+nav button{font-size:26px!important;font-weight:800!important;min-height:94px!important;padding:10px 3px!important;border-radius:18px!important;box-shadow:none!important}
+nav button.active{background:var(--soft-primary)!important;color:var(--primary)!important}
+
+@media(max-width:500px){
+  .wrap{padding:12px 12px 150px!important}
+  header h1,h1,.page-title{font-size:31px!important}
+  h2,.section-title,.page>h2,.section>h2{font-size:27px!important}
+  h3,.card-title{font-size:25px!important}
+  label,legend,.field-label,.form-label,.input-label,.form-grid>div>label,.card label,.page label{font-size:23px!important}
+  input,select,textarea,button,.btn{font-size:23px!important;min-height:66px!important}
+  input::placeholder,textarea::placeholder{font-size:21px!important}
+  .form-grid,.workout-grid,.weight-dashboard,.kpi-grid{grid-template-columns:1fr!important}
+  .card,.form-section{padding:18px!important}
+  .kpi-value{font-size:40px!important}
+  .dashboard-kpi{padding:19px!important}
+  nav{min-height:112px!important}
+  nav button{font-size:26px!important;min-height:96px!important;line-height:1.08!important}
+  .actions{grid-template-columns:1fr!important}
+}
+@media(min-width:501px) and (max-width:699px){.weight-dashboard,.kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(min-width:700px){
+  label,legend,.field-label,.form-label,.input-label,.form-grid>div>label,.card label,.page label{font-size:23px!important}
+  input,select,textarea,button,.btn{font-size:23px!important}
+  header h1,h1,.page-title{font-size:36px!important}
+  h2,.section-title,.page>h2,.section>h2{font-size:29px!important}
+  .weight-dashboard{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+  .kpi-value{font-size:46px!important}
+}
+
+
+
+/* ===== Premium responsive design system – final override ===== */
+:root{
+  --premium-bg:#f3f6fb;
+  --premium-card:rgba(255,255,255,.96);
+  --premium-card-strong:#ffffff;
+  --premium-shadow:0 10px 30px rgba(15,23,42,.08),0 2px 8px rgba(15,23,42,.05);
+  --premium-shadow-hover:0 16px 40px rgba(15,23,42,.12);
+  --premium-radius:22px;
+  --premium-field-radius:18px;
+  --premium-gap:20px;
+  --premium-section-gap:28px;
+  --premium-focus:0 0 0 4px rgba(37,99,235,.16);
+}
+[data-theme="dark"]{
+  --premium-bg:#07101f;
+  --premium-card:rgba(17,24,39,.96);
+  --premium-card-strong:#111827;
+  --premium-shadow:0 12px 32px rgba(0,0,0,.30),0 2px 8px rgba(0,0,0,.22);
+  --premium-shadow-hover:0 18px 44px rgba(0,0,0,.38);
+  --premium-focus:0 0 0 4px rgba(96,165,250,.20);
+}
+html{font-size:100%!important;scroll-behavior:smooth}
+body{
+  background:
+    radial-gradient(circle at 90% -10%,rgba(37,99,235,.10),transparent 34%),
+    radial-gradient(circle at 4% 24%,rgba(14,165,233,.08),transparent 28%),
+    var(--premium-bg)!important;
+  font-size:20px!important;
+  font-weight:500!important;
+  line-height:1.55!important;
+}
+header{
+  min-height:76px!important;
+  padding:14px max(16px,env(safe-area-inset-right)) 14px max(16px,env(safe-area-inset-left))!important;
+  background:color-mix(in srgb,var(--premium-card-strong) 88%,transparent)!important;
+  backdrop-filter:blur(18px) saturate(1.2);
+  -webkit-backdrop-filter:blur(18px) saturate(1.2);
+  box-shadow:0 1px 0 var(--border),0 8px 24px rgba(15,23,42,.04)!important;
+}
+header h1{font-size:36px!important;font-weight:800!important;letter-spacing:-.5px!important}
+.wrap{padding-top:22px!important;padding-bottom:calc(128px + env(safe-area-inset-bottom))!important}
+.page{animation:premiumFade .22s ease-out}
+@keyframes premiumFade{from{opacity:.35;transform:translateY(5px)}to{opacity:1;transform:none}}
+
+/* Typographic hierarchy */
+.page>h2,.page-title{font-size:32px!important;font-weight:800!important;line-height:1.18!important;letter-spacing:-.35px!important;margin-bottom:22px!important}
+.section h2,.section-title,.form-section-title{font-size:28px!important;font-weight:800!important;line-height:1.22!important;margin-bottom:18px!important}
+h3,.card-title{font-size:24px!important;font-weight:700!important;line-height:1.28!important}
+label,legend,.field-label,.form-label,.input-label,.form-grid>div>label,.card label,.page label{
+  display:block!important;font-size:22px!important;font-weight:700!important;line-height:1.3!important;
+  margin-bottom:9px!important;color:var(--text)!important;
+}
+body,main,section,article,.card,.panel,.form-section,.form-group,.list-item,.item{font-size:20px!important}
+.muted,.subtitle,.secondary-text,.helper-text,.empty-state,.validation-message,.item-sub,.kpi-note{
+  font-size:18px!important;font-weight:500!important;line-height:1.48!important;color:var(--muted)!important;
+}
+.kpi-value,.metric-value,.stat-value,.summary-value,.weight-value{font-size:42px!important;font-weight:800!important;line-height:1.04!important;letter-spacing:-.6px!important}
+.kpi-label,.metric-label,.stat-label{font-size:20px!important;font-weight:700!important}
+.item-title,.item-title b,.item b{font-size:22px!important;font-weight:700!important}
+
+/* Cards and visual hierarchy */
+.card,.panel,.form-section,.summary-card,.metric-card,.stat-card,.kpi-card{
+  background:var(--premium-card)!important;border:1px solid color-mix(in srgb,var(--border) 82%,transparent)!important;
+  border-radius:var(--premium-radius)!important;padding:20px!important;margin-bottom:18px!important;
+  box-shadow:var(--premium-shadow)!important;overflow:hidden!important;
+}
+.card:hover,.panel:hover,.kpi-card:hover{box-shadow:var(--premium-shadow-hover)!important}
+.section{margin-top:var(--premium-section-gap)!important}
+.grid,.dashboard-grid,.summary-grid,.kpi-grid,.form-grid,.workout-grid,.weight-dashboard{gap:var(--premium-gap)!important}
+.form-group,.form-grid>div{margin-bottom:20px!important;min-width:0!important}
+.form-section-title .section-icon{
+  width:46px!important;height:46px!important;border-radius:15px!important;font-size:24px!important;
+  box-shadow:inset 0 0 0 1px rgba(37,99,235,.08)!important;
+}
+
+/* Inputs */
+input,select,textarea{
+  width:100%!important;min-height:64px!important;padding:16px!important;
+  font-family:inherit!important;font-size:22px!important;font-weight:600!important;line-height:1.35!important;
+  border:1.5px solid var(--border)!important;border-radius:var(--premium-field-radius)!important;
+  background:color-mix(in srgb,var(--premium-card-strong) 96%,var(--primary) 4%)!important;color:var(--text)!important;
+  box-shadow:inset 0 1px 2px rgba(15,23,42,.035)!important;transition:border-color .18s,box-shadow .18s,background .18s!important;
+}
+input:focus,select:focus,textarea:focus{
+  outline:none!important;border-color:var(--primary)!important;box-shadow:var(--premium-focus)!important;background:var(--premium-card-strong)!important;
+}
+textarea{min-height:132px!important;resize:vertical!important}
+input::placeholder,textarea::placeholder{font-size:20px!important;font-weight:500!important;color:var(--muted)!important;opacity:.9!important}
+select option{font-size:22px!important;font-weight:600!important}
+input[type="checkbox"],input[type="radio"]{width:26px!important;height:26px!important;min-height:26px!important;padding:0!important;accent-color:var(--primary)!important}
+
+/* Buttons */
+button,.btn{
+  min-height:64px!important;padding:14px 20px!important;border-radius:18px!important;
+  font-family:inherit!important;font-size:22px!important;font-weight:700!important;line-height:1.2!important;
+  box-shadow:0 8px 18px rgba(37,99,235,.18)!important;transition:transform .14s,box-shadow .14s,filter .14s!important;
+}
+button:active,.btn:active{transform:translateY(1px) scale(.992)!important}
+button:hover,.btn:hover{filter:brightness(1.025)!important;box-shadow:0 11px 24px rgba(37,99,235,.23)!important}
+.secondary{font-size:20px!important;font-weight:600!important;box-shadow:none!important;background:color-mix(in srgb,var(--primary) 10%,var(--premium-card-strong))!important;color:var(--primary)!important;border:1px solid color-mix(in srgb,var(--primary) 24%,var(--border))!important}
+.danger{box-shadow:0 8px 18px rgba(220,38,38,.16)!important}
+
+/* Lists, summaries and status */
+.item,.list-item{border-radius:18px!important;padding:18px!important;margin-bottom:14px!important;background:color-mix(in srgb,var(--premium-card-strong) 97%,var(--primary) 3%)!important;border:1px solid var(--border)!important}
+.status,.trend-chip,.progress-meta{font-size:20px!important;font-weight:700!important}
+.bar,.progress-track{height:16px!important;border-radius:999px!important;overflow:hidden!important}
+.weight-summary{font-size:20px!important;font-weight:600!important;line-height:1.6!important}
+.chart-toolbar{gap:10px!important;flex-wrap:wrap!important}
+.chart-range{min-height:52px!important;padding:10px 16px!important;font-size:18px!important;font-weight:600!important;border-radius:999px!important}
+canvas{border-radius:16px!important;background:color-mix(in srgb,var(--premium-card-strong) 98%,var(--primary) 2%)!important}
+
+/* Bottom navigation */
+nav,.bottom-nav{
+  min-height:100px!important;padding:8px max(8px,env(safe-area-inset-right)) calc(8px + env(safe-area-inset-bottom)) max(8px,env(safe-area-inset-left))!important;
+  background:color-mix(in srgb,var(--premium-card-strong) 92%,transparent)!important;
+  backdrop-filter:blur(20px) saturate(1.25)!important;-webkit-backdrop-filter:blur(20px) saturate(1.25)!important;
+  border-top:1px solid var(--border)!important;box-shadow:0 -12px 28px rgba(15,23,42,.08)!important;
+}
+nav button,.bottom-nav button,.bottom-nav a,.bottom-nav-item,.nav-item{
+  min-height:82px!important;padding:9px 5px!important;border-radius:18px!important;
+  font-size:20px!important;font-weight:700!important;line-height:1.1!important;box-shadow:none!important;
+  background:transparent!important;color:var(--muted)!important;
+}
+nav button.active,.bottom-nav .active,.nav-item.active{background:color-mix(in srgb,var(--primary) 13%,transparent)!important;color:var(--primary)!important}
+nav button span,.bottom-nav span,.nav-label{font-size:20px!important;font-weight:700!important}
+.nav-icon,nav button svg{font-size:28px!important;width:28px!important;height:28px!important}
+
+/* Fold 7 cover screen */
+@media (max-width:500px){
+  body{font-size:19px!important}
+  header{min-height:70px!important;padding:11px 12px!important}
+  header h1{font-size:28px!important}
+  .wrap{padding:14px 10px calc(122px + env(safe-area-inset-bottom))!important}
+  .page>h2,.page-title{font-size:29px!important;margin-bottom:18px!important}
+  .section h2,.section-title,.form-section-title{font-size:25px!important}
+  h3,.card-title{font-size:22px!important}
+  label,legend,.field-label,.form-label,.input-label,.form-grid>div>label,.card label,.page label{font-size:20px!important;margin-bottom:7px!important}
+  input,select,textarea{font-size:20px!important;min-height:60px!important;padding:13px 14px!important;border-radius:16px!important}
+  input::placeholder,textarea::placeholder{font-size:18px!important}
+  select option{font-size:20px!important}
+  button,.btn{font-size:20px!important;min-height:60px!important;padding:13px 15px!important;border-radius:16px!important}
+  .secondary{font-size:18px!important}
+  .kpi-value,.metric-value,.stat-value,.summary-value,.weight-value{font-size:36px!important}
+  .kpi-label,.metric-label,.stat-label{font-size:18px!important}
+  .muted,.subtitle,.secondary-text,.helper-text,.empty-state,.validation-message,.item-sub,.kpi-note{font-size:17px!important}
+  .card,.panel,.form-section,.summary-card,.metric-card,.stat-card,.kpi-card{padding:16px!important;border-radius:19px!important;margin-bottom:14px!important}
+  .grid,.dashboard-grid,.summary-grid,.kpi-grid,.form-grid,.workout-grid,.weight-dashboard{grid-template-columns:1fr!important;gap:14px!important}
+  .form-group,.form-grid>div{margin-bottom:16px!important}
+  nav,.bottom-nav{min-height:92px!important;padding-top:6px!important}
+  nav button,.bottom-nav button,.bottom-nav a,.bottom-nav-item,.nav-item{min-height:76px!important;font-size:17px!important;padding:7px 2px!important;border-radius:14px!important}
+  nav button span,.bottom-nav span,.nav-label{font-size:17px!important;white-space:normal!important;overflow-wrap:normal!important;word-break:keep-all!important}
+  .nav-icon,nav button svg{font-size:25px!important;width:25px!important;height:25px!important}
+  .item,.list-item{padding:15px!important}
+  .item-title,.item-title b,.item b{font-size:20px!important}
+  .item-sub{font-size:17px!important}
+}
+
+/* Fold 7 intermediate / partially opened */
+@media (min-width:501px) and (max-width:699px){
+  .dashboard-grid,.summary-grid,.kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  .form-grid,.workout-grid,.weight-dashboard{grid-template-columns:1fr!important}
+  .page>h2,.page-title{font-size:31px!important}
+}
+
+/* Fold 7 inner screen and desktop */
+@media (min-width:700px){
+  .wrap{padding-left:24px!important;padding-right:24px!important}
+  .dashboard-grid,.summary-grid,.kpi-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+  .form-grid,.workout-grid,.weight-dashboard{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  .page>h2,.page-title{font-size:32px!important}
+  .section h2,.section-title,.form-section-title{font-size:28px!important}
+}
+@media (min-width:1100px){
+  .dashboard-grid,.summary-grid,.kpi-grid{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+}
+
+
+/* ===== מחשבון תזונה מקומי ===== */
+.smart-meal-card{border:1px solid var(--border);background:var(--card);border-radius:24px;padding:20px;box-shadow:0 10px 30px rgba(15,23,42,.08);margin:24px 0}
+.smart-meal-head{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}.smart-meal-title{font-size:28px;font-weight:800;margin:0}.smart-meal-help{font-size:18px;color:var(--muted);font-weight:600}
+#smartMealText{min-height:140px;font-size:22px}.smart-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:16px}.smart-actions button{min-height:64px;font-size:20px;font-weight:700}
+.smart-result{display:none;margin-top:20px}.smart-result.show{display:block}.smart-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:16px 0}.smart-metric{background:var(--bg);border:1px solid var(--border);border-radius:18px;padding:16px}.smart-metric span{display:block;font-size:17px;color:var(--muted);font-weight:700}.smart-metric b{display:block;font-size:30px;margin-top:5px}
+.smart-total{font-size:44px;font-weight:800;line-height:1.05}.confidence{display:inline-flex;align-items:center;gap:8px;border-radius:999px;padding:8px 12px;font-size:18px;font-weight:800}.confidence.high{background:#dcfce7;color:#166534}.confidence.medium{background:#ffedd5;color:#9a3412}.confidence.low{background:#fee2e2;color:#991b1b}
+.smart-items{display:grid;gap:14px;margin-top:18px}.smart-food-item{border:1px solid var(--border);border-radius:20px;padding:16px;background:var(--card)}.smart-food-top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.smart-food-name{font-size:23px;font-weight:800}.smart-food-source{font-size:17px;color:var(--muted);margin-top:4px}.smart-food-kcal{font-size:28px;font-weight:800;white-space:nowrap}.smart-food-meta{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:12px;font-size:17px}.smart-food-meta div{background:var(--bg);border-radius:12px;padding:9px}.smart-item-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.smart-item-actions button{min-height:48px;padding:8px 12px!important;font-size:17px!important}
+.smart-warning{margin-top:14px;padding:14px;border-radius:16px;background:#fff7ed;color:#9a3412;font-size:18px;font-weight:700}.smart-disclaimer{font-size:17px;color:var(--muted);line-height:1.5;margin-top:14px}.favorite-row{display:flex;gap:10px;align-items:end;flex-wrap:wrap}.favorite-row>div{flex:1 1 230px}.favorite-list{display:grid;gap:10px;margin-top:12px}.favorite-item{display:flex;justify-content:space-between;gap:10px;align-items:center;border:1px solid var(--border);border-radius:16px;padding:12px}.favorite-item button{min-height:46px!important;font-size:17px!important;padding:7px 10px!important}
+@media(max-width:600px){.smart-summary{grid-template-columns:repeat(2,minmax(0,1fr))}.smart-food-meta{grid-template-columns:repeat(2,minmax(0,1fr))}.smart-actions button{width:100%}.smart-food-top{display:block}.smart-food-kcal{margin-top:8px}.smart-total{font-size:40px}}
+@media(min-width:800px){.smart-items{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+
+/* ===== חיפוש תזונתי מקוון ===== */
+.online-status{display:none;margin-top:14px;padding:14px 16px;border:1px solid var(--border);border-radius:16px;background:var(--bg);font-size:18px;font-weight:700;line-height:1.5}.online-status.show{display:block}.online-spinner{display:inline-block;width:20px;height:20px;border:3px solid var(--border);border-top-color:var(--primary);border-radius:50%;animation:onlineSpin .8s linear infinite;vertical-align:-4px;margin-left:8px}@keyframes onlineSpin{to{transform:rotate(360deg)}}
+.source-box{margin-top:12px;padding:12px;border-radius:14px;background:var(--bg);border:1px solid var(--border);font-size:16px;line-height:1.55}.source-box b{font-size:17px}.source-link{display:inline-flex;align-items:center;justify-content:center;min-height:44px;margin-top:8px;padding:7px 12px;border-radius:12px;background:var(--primary);color:#fff!important;text-decoration:none;font-weight:800}.assumptions{margin-top:8px;font-size:16px;color:var(--muted);line-height:1.5}.cache-note{font-size:15px;color:var(--muted);margin-top:6px}.online-badge{display:inline-flex;border-radius:999px;padding:5px 9px;font-size:14px;font-weight:800;background:#dbeafe;color:#1e40af;margin-inline-start:6px}.source-warning{margin-top:8px;padding:10px;border-radius:12px;background:#fff7ed;color:#9a3412;font-weight:700}.online-progress{font-weight:800}.alternative-count{font-size:15px;color:var(--muted);margin-top:5px}
+@media(max-width:600px){.source-link{width:100%}.online-status{font-size:17px}}
+
+/* ===== הזנת רכיבי ארוחה — ממשק ידידותי ===== */
+.manual-food-card{margin:24px 0;padding:0;border-radius:28px;overflow:hidden;border:1px solid var(--border);box-shadow:0 14px 38px rgba(15,23,42,.10)}
+.manual-food-header{padding:24px;background:linear-gradient(135deg,var(--primary),#0f766e);color:#fff}
+.manual-food-header .form-section-title{color:#fff;margin:0 0 8px}
+.manual-food-help{font-size:18px;line-height:1.55;margin:0;color:rgba(255,255,255,.9);font-weight:600}
+.manual-food-body{padding:22px}
+.manual-steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:20px}
+.manual-step{display:flex;align-items:center;gap:9px;padding:11px 13px;border:1px solid var(--border);border-radius:16px;background:var(--bg);font-size:16px;font-weight:800}
+.manual-step-num{display:inline-grid;place-items:center;min-width:30px;height:30px;border-radius:50%;background:var(--primary);color:#fff;font-size:16px}
+.manual-entry-panel{padding:18px;border:1px solid var(--border);border-radius:22px;background:var(--bg);margin-bottom:18px}
+.manual-entry-title{font-size:20px;font-weight:900;margin-bottom:14px}
+.manual-entry-grid{display:grid;grid-template-columns:2fr 1.25fr .9fr auto;gap:12px;align-items:end}
+.manual-entry-grid label{font-weight:800;margin-bottom:7px}
+.manual-entry-grid input{min-height:58px;font-size:19px;border-radius:15px;background:var(--card)}
+.manual-entry-save button{min-width:178px;min-height:58px;font-size:19px;font-weight:900;border-radius:15px;box-shadow:0 8px 18px rgba(37,99,235,.22)}
+.manual-inline-status{min-height:26px;margin-top:10px;font-size:16px;font-weight:800;color:var(--muted)}
+.manual-inline-status.success{color:#15803d}.manual-inline-status.error{color:#b91c1c}
+.manual-summary-strip{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+.manual-summary-box{padding:15px 17px;border:1px solid var(--border);border-radius:18px;background:var(--card)}
+.manual-summary-box span{display:block;color:var(--muted);font-size:16px;font-weight:700}
+.manual-summary-box b{display:block;font-size:30px;margin-top:3px;line-height:1.1}
+.manual-list-title{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:4px 0 10px;font-size:20px;font-weight:900}
+.manual-item-count{padding:6px 11px;border-radius:999px;background:var(--bg);border:1px solid var(--border);font-size:15px}
+.manual-empty-state{padding:26px 18px;text-align:center;border:2px dashed var(--border);border-radius:20px;color:var(--muted);font-size:18px;font-weight:700;background:var(--bg)}
+.manual-empty-state .empty-icon{font-size:36px;display:block;margin-bottom:7px}
+.manual-table-wrap{width:100%;overflow:hidden;border:1px solid var(--border);border-radius:20px;background:var(--card)}
+.manual-food-table{width:100%;border-collapse:collapse;table-layout:fixed}
+.manual-food-table th,.manual-food-table td{padding:14px;border-bottom:1px solid var(--border);text-align:right;vertical-align:middle}
+.manual-food-table th{font-size:16px;background:var(--bg);font-weight:900;color:var(--muted)}
+.manual-food-table th:nth-child(1){width:38%}.manual-food-table th:nth-child(2){width:25%}.manual-food-table th:nth-child(3){width:18%}.manual-food-table th:nth-child(4){width:19%}
+.manual-food-table td{font-size:18px}.manual-food-saved-row td:first-child{font-weight:900}.manual-food-saved-row:hover{background:color-mix(in srgb,var(--primary) 4%,transparent)}
+.manual-row-actions{display:flex;gap:7px;justify-content:flex-start;flex-wrap:wrap}
+.manual-row-actions button{min-height:42px!important;padding:7px 10px!important;font-size:15px!important;border-radius:11px!important}
+.manual-food-edit{background:var(--bg)!important;color:var(--text)!important;border:1px solid var(--border)!important}
+.manual-food-table tfoot td{font-weight:900;font-size:20px;background:var(--bg);border-bottom:0}
+#manualFoodTotal{font-size:28px;color:var(--primary)}
+.manual-food-actions{display:grid;grid-template-columns:2fr 1fr;gap:12px;margin-top:18px}
+.manual-meal-details{display:grid;grid-template-columns:1fr 1fr 1.3fr;gap:12px;margin-top:18px;padding:16px;border:1px solid var(--border);border-radius:18px;background:var(--bg)}
+.manual-meal-details input,.manual-meal-details select{background:var(--card)}
+.meal-top-details{display:grid;grid-template-columns:minmax(230px,1.35fr) minmax(180px,1fr);gap:14px;align-items:end;margin-top:14px;margin-bottom:16px;padding:18px}
+.meal-top-field label{display:block;margin-bottom:7px;font-weight:800}
+.meal-top-field input,.meal-top-field select{width:100%;min-height:52px;font-size:18px;font-weight:700;background:var(--bg)}
+.meal-top-datetime input{direction:ltr;text-align:right}
+.workout-datetime input{direction:ltr;text-align:right}
+@media(max-width:650px){.meal-top-details{grid-template-columns:1fr;padding:14px;gap:12px}.meal-top-field input,.meal-top-field select{min-height:50px;font-size:17px}}
+
+.manual-save-hint{margin-top:10px;text-align:center;color:var(--muted);font-size:16px;font-weight:700}
+.manual-food-actions button{min-height:62px;font-size:19px;font-weight:900;border-radius:16px}
+#saveMeal{box-shadow:0 9px 22px rgba(37,99,235,.22)}
+.manual-food-note{margin-top:13px;padding:12px 14px;border-radius:14px;background:var(--bg);color:var(--muted);font-size:16px;line-height:1.5;font-weight:650}
+.manual-editing-banner{display:none;margin-bottom:12px;padding:11px 13px;border-radius:14px;background:#fff7ed;color:#9a3412;font-weight:800}.manual-editing-banner.show{display:block}
+@media(max-width:850px){.manual-entry-grid{grid-template-columns:1.5fr 1fr 1fr}.manual-entry-save{grid-column:1/-1}.manual-entry-save button{width:100%}.manual-steps{grid-template-columns:1fr}.manual-meal-details{grid-template-columns:1fr 1fr}}
+@media(max-width:650px){
+  .manual-food-header{padding:20px}.manual-food-body{padding:15px}.manual-entry-panel{padding:14px}
+  .manual-entry-grid{grid-template-columns:1fr}.manual-entry-save{grid-column:auto}
+  .manual-summary-strip{grid-template-columns:1fr 1fr}.manual-summary-box b{font-size:26px}
+  .manual-table-wrap{overflow:visible;border:0;background:transparent}
+  .manual-food-table,.manual-food-table tbody,.manual-food-table tr,.manual-food-table td{display:block;width:100%;min-width:0}
+  .manual-food-table thead,.manual-food-table tfoot{display:none}
+  .manual-food-table tr{border:1px solid var(--border);border-radius:18px;padding:14px;margin-bottom:12px;background:var(--card);box-shadow:0 6px 18px rgba(15,23,42,.06)}
+  .manual-food-table td{border:0;padding:5px 0}
+  .manual-food-table td:nth-child(1){font-size:21px;margin-bottom:5px}
+  .manual-food-table td:nth-child(2)::before{content:'כמות: ';font-weight:800;color:var(--muted)}
+  .manual-food-table td:nth-child(3)::before{content:'קלוריות: ';font-weight:800;color:var(--muted)}
+  .manual-row-actions{margin-top:10px}.manual-row-actions button{flex:1}
+  .manual-food-actions{grid-template-columns:1fr}.manual-food-actions button{width:100%}.manual-meal-details{grid-template-columns:1fr}
+}
+
+
+/* Compact, friendly daily nutrition summary — fonts enlarged by 40% */
+.daily-summary-compact{
+  padding:16px 20px!important;
+  border-radius:22px!important;
+  margin-bottom:16px!important;
+  background:linear-gradient(135deg,#164e73 0%,#1d6f9f 55%,#2386b8 100%)!important;
+  border:1px solid rgba(255,255,255,.18)!important;
+  box-shadow:0 10px 24px rgba(15,76,111,.18)!important;
+  overflow:hidden;
+}
+.daily-summary-compact .compact-summary-head{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:13px
+}
+.daily-summary-compact .form-section-title{
+  margin:0!important;font-size:24px!important;line-height:1.15!important;color:#fff!important;
+  display:flex;align-items:center;gap:7px
+}
+.daily-summary-compact .section-icon{font-size:25px;filter:drop-shadow(0 2px 3px rgba(0,0,0,.14))}
+.daily-summary-compact .compact-summary-date{
+  font-size:18px!important;font-weight:800;color:rgba(255,255,255,.9);
+  background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.14);
+  border-radius:999px;padding:5px 10px;white-space:nowrap
+}
+.daily-summary-compact .kpi-grid{
+  display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;
+  gap:10px!important;margin:0!important
+}
+.daily-summary-compact .compact-kpi{
+  position:relative;min-width:0;padding:12px 10px 11px;border-radius:16px;
+  background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.14);
+  text-align:center;box-shadow:inset 0 1px 0 rgba(255,255,255,.08);
+  transition:transform .18s ease,background .18s ease
+}
+.daily-summary-compact .compact-kpi::before{
+  display:block;font-size:20px;line-height:1;margin-bottom:6px
+}
+.daily-summary-compact .compact-kpi:nth-child(1)::before{content:'🎯'}
+.daily-summary-compact .compact-kpi:nth-child(2)::before{content:'🍴'}
+.daily-summary-compact .compact-kpi:nth-child(3)::before{content:'🔥'}
+.daily-summary-compact .compact-kpi:nth-child(4)::before{content:'⚖️'}
+.daily-summary-compact .compact-kpi:nth-child(5)::before{content:'✅'}
+.daily-summary-compact .compact-kpi:last-child{
+  background:rgba(255,255,255,.2);border-color:rgba(255,255,255,.28)
+}
+.daily-summary-compact .kpi-label{
+  font-size:18.2px!important;line-height:1.12!important;font-weight:800!important;
+  color:rgba(255,255,255,.9)!important
+}
+.daily-summary-compact .kpi-value{
+  font-size:33.6px!important;line-height:1.04!important;margin-top:5px!important;
+  white-space:nowrap;color:#fff!important;font-weight:900!important;letter-spacing:-.5px
+}
+.daily-summary-compact .compact-unit{
+  font-size:15.4px!important;font-weight:800;opacity:.86;margin-right:3px;letter-spacing:0
+}
+.daily-summary-compact.summary-updated{animation:summaryPulse .55s ease}
+@keyframes summaryPulse{0%{transform:scale(1)}40%{transform:scale(1.012);box-shadow:0 0 0 5px rgba(46,204,113,.18),0 12px 28px rgba(15,76,111,.2)}100%{transform:scale(1)}}
+@media(hover:hover){.daily-summary-compact .compact-kpi:hover{transform:translateY(-2px);background:rgba(255,255,255,.17)}}
+@media(max-width:700px){
+  .daily-summary-compact{padding:14px!important;border-radius:20px!important}
+  .daily-summary-compact .compact-summary-head{margin-bottom:11px;align-items:flex-start}
+  .daily-summary-compact .form-section-title{font-size:22px!important}
+  .daily-summary-compact .compact-summary-date{font-size:16px!important;padding:4px 8px}
+  .daily-summary-compact .kpi-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:8px!important}
+  .daily-summary-compact .compact-kpi{padding:10px 7px}
+  .daily-summary-compact .compact-kpi:nth-child(4),.daily-summary-compact .compact-kpi:nth-child(5){grid-column:auto}
+  .daily-summary-compact .kpi-label{font-size:18.2px!important}
+  .daily-summary-compact .kpi-value{font-size:29.4px!important}
+  .daily-summary-compact .compact-unit{font-size:15.4px!important}
+}
+@media(max-width:430px){
+  .daily-summary-compact .compact-summary-head{display:grid;grid-template-columns:1fr;gap:7px}
+  .daily-summary-compact .compact-summary-date{justify-self:start}
+  .daily-summary-compact .kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  .daily-summary-compact .compact-kpi:last-child{grid-column:1/-1}
+  .daily-summary-compact .compact-kpi::before{font-size:19px;margin-bottom:5px}
+}
+
+
+/* Unified cockpit styling for meals, workouts and weight */
+.cockpit-workouts{background:linear-gradient(135deg,#075985 0%,#0e7490 52%,#0891b2 100%)!important}
+.cockpit-weight{background:linear-gradient(135deg,#5b21b6 0%,#7c3aed 52%,#8b5cf6 100%)!important}
+.cockpit-workouts .compact-kpi:nth-child(1)::before{content:'🏃'}
+.cockpit-workouts .compact-kpi:nth-child(2)::before{content:'✅'}
+.cockpit-workouts .compact-kpi:nth-child(3)::before{content:'⏱️'}
+.cockpit-workouts .compact-kpi:nth-child(4)::before{content:'🔥'}
+.cockpit-workouts .compact-kpi:nth-child(5)::before{content:'💪'}
+.cockpit-weight .compact-kpi:nth-child(1)::before{content:'⚖️'}
+.cockpit-weight .compact-kpi:nth-child(2)::before{content:'🎯'}
+.cockpit-weight .compact-kpi:nth-child(3)::before{content:'↕️'}
+.cockpit-weight .compact-kpi:nth-child(4)::before{content:'📅'}
+.cockpit-weight .compact-kpi:nth-child(5)::before{content:'📊'}
+.cockpit-workouts .compact-kpi:last-child,.cockpit-weight .compact-kpi:last-child{background:rgba(255,255,255,.20);border-color:rgba(255,255,255,.28)}
+.cockpit-workouts .compact-unit,.cockpit-weight .compact-unit{font-size:14px!important}
+.cockpit-subtitle{font-size:16px;font-weight:700;color:rgba(255,255,255,.84);margin-top:4px}
+@media(max-width:430px){.cockpit-subtitle{font-size:15px}}
+
+
+/* Unified Today cockpit */
+.cockpit-today{background:linear-gradient(135deg,#0f4c6f 0%,#146b8c 52%,#168aad 100%)!important}
+.cockpit-today .compact-kpi:nth-child(1)::before{content:'🎯'}
+.cockpit-today .compact-kpi:nth-child(2)::before{content:'🍴'}
+.cockpit-today .compact-kpi:nth-child(3)::before{content:'🔥'}
+.cockpit-today .compact-kpi:nth-child(4)::before{content:'⚖️'}
+.cockpit-today .compact-kpi:nth-child(5)::before{content:'✅'}
+.cockpit-today .compact-summary-head{display:grid;grid-template-columns:1fr auto 1fr;align-items:center}
+.cockpit-today .compact-summary-head>div:first-child{grid-column:1}
+.today-date-control{grid-column:2;justify-self:center;display:inline-flex;align-items:center;justify-content:center;gap:8px;width:270px;max-width:100%;padding:5px 8px;border-radius:11px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.2);transform:none}
+.today-date-control label{margin:0;color:rgba(255,255,255,.88);font-size:14px;white-space:nowrap}
+.today-date-control input{min-height:38px;width:205px;max-width:205px;padding:5px 10px;border-radius:8px;border-color:rgba(255,255,255,.28);background:rgba(255,255,255,.96);color:#0f172a;font-size:16px}
+.today-status-panel{margin-top:12px;padding:13px 15px;border-radius:16px;background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.18)}
+.today-status-panel .status{color:#fff!important;font-size:clamp(20px,2.5vw,27px)!important;margin:0 0 10px!important}
+.today-status-panel .bar{height:13px;background:rgba(255,255,255,.22)}
+.today-status-panel .bar span{background:#fff}
+.today-quick-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--page-gap);margin-top:var(--page-gap)}
+.today-quick-card{display:flex;align-items:center;gap:14px;min-height:105px}
+.today-quick-icon{display:grid;place-items:center;flex:0 0 54px;height:54px;border-radius:16px;background:color-mix(in srgb,var(--primary) 12%,transparent);font-size:27px}
+.today-quick-content{min-width:0}.today-quick-title{font-size:16px;color:var(--muted);font-weight:800}.today-quick-value{font-size:clamp(23px,3vw,31px);font-weight:900;margin-top:3px;line-height:1.18}
+@media(max-width:700px){.cockpit-today .compact-summary-head{display:grid;grid-template-columns:1fr;gap:10px}.cockpit-today .compact-summary-head>div:first-child{grid-column:1}.today-date-control{grid-column:1;width:270px;max-width:100%;justify-self:center;justify-content:center;transform:none}.today-date-control input{width:205px;max-width:205px;flex:none}.today-quick-grid{grid-template-columns:1fr}}
+
+
+/* User-friendly Today screen */
+.today-page-title{display:flex;align-items:end;justify-content:space-between;gap:12px;margin-bottom:12px}
+.today-page-title h2{margin:0}.today-page-hint{font-size:15px;color:var(--muted);font-weight:700}
+.today-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:14px}
+.today-action{display:flex;align-items:center;gap:12px;min-height:78px;padding:14px 16px;border:1px solid var(--border);border-radius:18px;background:var(--card);color:var(--text);text-align:right;box-shadow:0 7px 20px rgba(15,23,42,.07);cursor:pointer;transition:.18s ease}
+.today-action:hover{transform:translateY(-2px);border-color:color-mix(in srgb,var(--primary) 45%,var(--border));box-shadow:0 10px 24px rgba(15,23,42,.11)}
+.today-action:active{transform:scale(.985)}
+.today-action-icon{display:grid;place-items:center;flex:0 0 48px;height:48px;border-radius:15px;background:color-mix(in srgb,var(--primary) 13%,transparent);font-size:25px}
+.today-action-title{display:block;font-size:19px;font-weight:900;line-height:1.15}.today-action-sub{display:block;margin-top:4px;color:var(--muted);font-size:14px;font-weight:700}
+.today-overview-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:14px}
+.today-overview-card{position:relative;overflow:hidden;min-height:128px;padding:17px;border:1px solid var(--border);border-radius:20px;background:var(--card);box-shadow:0 7px 20px rgba(15,23,42,.06)}
+.today-overview-card::after{content:'';position:absolute;inset:auto -30px -40px auto;width:105px;height:105px;border-radius:50%;background:color-mix(in srgb,var(--primary) 8%,transparent)}
+.today-overview-head{display:flex;align-items:center;gap:9px;color:var(--muted);font-size:15px;font-weight:900}.today-overview-head span:first-child{font-size:22px}
+.today-overview-value{position:relative;z-index:1;margin-top:10px;font-size:clamp(25px,3vw,34px);font-weight:950;line-height:1.12}.today-overview-note{position:relative;z-index:1;margin-top:7px;color:var(--muted);font-size:14px;font-weight:700;line-height:1.35}
+.today-status-panel{display:grid;grid-template-columns:1fr;gap:8px}.today-status-top{display:flex;align-items:center;justify-content:space-between;gap:10px}.today-progress-label{font-size:14px;color:rgba(255,255,255,.82);font-weight:800;white-space:nowrap}
+.today-status-panel .bar{overflow:hidden}.today-status-panel .bar span{transition:width .35s ease}
+@media(max-width:760px){.today-actions,.today-overview-grid{grid-template-columns:1fr}.today-action{min-height:70px}.today-page-title{align-items:flex-start;flex-direction:column}.today-page-hint{font-size:14px}.today-overview-card{min-height:112px}.today-status-top{align-items:flex-start;flex-direction:column}.today-progress-label{white-space:normal}}
+
+
+/* Simplified workout form */
+.workout-simple-card{margin-top:18px}
+.workout-simple-grid{grid-template-columns:repeat(3,minmax(0,1fr));align-items:end}
+.workout-note-field{grid-column:1/-1}
+.workout-note-field textarea{min-height:92px;resize:vertical}
+.workout-save-actions{margin-top:16px}
+.workout-save-actions button{width:100%;min-height:50px;font-size:17px;font-weight:800}
+@media(max-width:760px){.workout-simple-grid{grid-template-columns:1fr}.workout-note-field{grid-column:auto}}
+
+    #installPwaBtn{display:none;background:#16a34a;color:#fff;min-height:46px;padding:9px 13px;font-size:17px;white-space:nowrap}
+    #installPwaBtn.show{display:inline-flex;align-items:center;justify-content:center}
+    @media (max-width:499px){#installPwaBtn{font-size:18px;padding:8px 10px}}
+</style>
+</head>
+<body>
+<header><div><h1>Diet Control</h1><div class="app-subtitle">מעקב יומי, ארוחות חכמות, אימונים ומגמת משקל</div></div><div class="right"><button id="installPwaBtn" type="button">התקן אפליקציה</button><button id="themeBtn" class="secondary icon">מצב כהה</button></div></header>
+<div class="wrap">
+  <section id="home" class="page active">
+    <div class="today-page-title"><h2>היום</h2><div class="today-page-hint">כל מה שחשוב להיום, במקום אחד</div></div>
+    <div class="card daily-summary-compact cockpit-today" id="todayCockpit">
+      <div class="compact-summary-head">
+        <div>
+          <div class="form-section-title"><span class="section-icon">☀️</span>תמונת מצב יומית</div>
+          <div class="cockpit-subtitle">קלוריות, פעילות והתקדמות במקום אחד</div>
+        </div>
+        <div class="today-date-control"><input type="date" id="viewDate" aria-label="בחירת תאריך" title="בחירת תאריך"></div>
+      </div>
+      <div class="kpi-grid">
+        <div class="compact-kpi"><div class="kpi-label">יעד</div><div class="kpi-value"><span id="kGoal">0</span><span class="compact-unit">קל׳</span></div></div>
+        <div class="compact-kpi"><div class="kpi-label">נאכל</div><div class="kpi-value"><span id="kEaten">0</span><span class="compact-unit">קל׳</span></div></div>
+        <div class="compact-kpi"><div class="kpi-label">נשרף</div><div class="kpi-value"><span id="kBurn">0</span><span class="compact-unit">קל׳</span></div></div>
+        <div class="compact-kpi"><div class="kpi-label">נטו</div><div class="kpi-value"><span id="kNet">0</span><span class="compact-unit">קל׳</span></div></div>
+        <div class="compact-kpi"><div class="kpi-label">נותר</div><div class="kpi-value"><span id="kRemain">0</span><span class="compact-unit">קל׳</span></div></div>
+      </div>
+      <div class="today-status-panel"><div class="today-status-top"><div id="dayStatus" class="status"></div><div id="todayProgressLabel" class="today-progress-label"></div></div><div class="bar"><span id="goalBar"></span></div></div>
+    </div>
+
+    <div class="today-actions" aria-label="פעולות מהירות">
+      <button class="today-action" type="button" data-go-page="meals"><span class="today-action-icon">🍽️</span><span><span class="today-action-title">הוסף ארוחה</span><span class="today-action-sub">הזנת מזון וקלוריות</span></span></button>
+      <button class="today-action" type="button" data-go-page="workouts"><span class="today-action-icon">🏃</span><span><span class="today-action-title">הוסף אימון</span><span class="today-action-sub">משך, סוג וקלוריות</span></span></button>
+      <button class="today-action" type="button" data-go-page="weight"><span class="today-action-icon">⚖️</span><span><span class="today-action-title">עדכן משקל</span><span class="today-action-sub">מדידה חדשה ומעקב</span></span></button>
+    </div>
+
+    <div class="today-overview-grid">
+      <div class="today-overview-card"><div class="today-overview-head"><span>🍴</span><span>ארוחות היום</span></div><div id="todayMealCount" class="today-overview-value">0</div><div id="todayMealNote" class="today-overview-note">עדיין לא נשמרה ארוחה</div></div>
+      <div class="today-overview-card"><div class="today-overview-head"><span>🏃</span><span>פעילות היום</span></div><div id="todayWorkout" class="today-overview-value">אין אימון</div><div id="todayWorkoutNote" class="today-overview-note">אפשר להוסיף אימון בלחיצה אחת</div></div>
+      <div class="today-overview-card"><div class="today-overview-head"><span>⚖️</span><span>משקל אחרון</span></div><div id="lastWeight" class="today-overview-value">—</div><div id="lastWeightDate" class="today-overview-note">עדיין לא נשמרה מדידה</div></div>
+    </div>
+  </section>
+
+  <section id="meals" class="page">
+    <h2>ארוחות</h2>
+    <div class="card cockpit-hero daily-summary-compact" id="dailyMealSummary">
+      <div class="compact-summary-head">
+        <div class="form-section-title"><span class="section-icon">🍽️</span>סיכום יומי</div>
+        <div id="mealSummaryDate" class="compact-summary-date"></div>
+      </div>
+      <div class="kpi-grid">
+        <div class="compact-kpi"><div class="kpi-label" style="color:rgba(255,255,255,.86)">יעד</div><div class="kpi-value"><span id="mealSummaryGoal">0</span><span class="compact-unit">קל׳</span></div></div>
+        <div class="compact-kpi"><div class="kpi-label" style="color:rgba(255,255,255,.86)">נאכל</div><div class="kpi-value"><span id="mealSummaryEaten">0</span><span class="compact-unit">קל׳</span></div></div>
+        <div class="compact-kpi"><div class="kpi-label" style="color:rgba(255,255,255,.86)">נשרף</div><div class="kpi-value"><span id="mealSummaryBurn">0</span><span class="compact-unit">קל׳</span></div></div>
+        <div class="compact-kpi"><div class="kpi-label" style="color:rgba(255,255,255,.86)">נטו</div><div class="kpi-value"><span id="mealSummaryNet">0</span><span class="compact-unit">קל׳</span></div></div>
+        <div class="compact-kpi"><div class="kpi-label" style="color:rgba(255,255,255,.86)">נותר</div><div class="kpi-value"><span id="mealSummaryRemain">0</span><span class="compact-unit">קל׳</span></div></div>
+      </div>
+    </div>
+
+    <div class="card meal-top-details">
+      <div class="meal-top-field meal-top-datetime">
+        <label for="mealDateTime">תאריך ושעה</label>
+        <input type="datetime-local" id="mealDateTime">
+      </div>
+      <div class="meal-top-field">
+        <label for="mealType">סוג ארוחה</label>
+        <select id="mealType"><option>ארוחת בוקר</option><option>צהריים</option><option>ביניים</option><option>ערב</option><option>לפני אימון</option><option>אחרי אימון</option><option>אחר</option></select>
+      </div>
+    </div>
+    <input type="hidden" id="mealDate"><input type="hidden" id="mealTime">
+
+    <div class="card manual-food-card" id="manualFoodEntry">
+      <div class="manual-food-header">
+        <div class="form-section-title"><span class="section-icon">🍽️</span>הזנת ארוחה</div>
+        <p class="manual-food-help">הוסף כל פריט שאכלת. בסיום שמור את הארוחה, והמסך יתנקה אוטומטית להזנת הארוחה הבאה.</p>
+      </div>
+      <div class="manual-food-body">
+        <div id="manualEditingBanner" class="manual-editing-banner">מצב עריכה: שנה את הפרטים ולחץ „עדכן פריט”.</div>
+        <div class="manual-entry-panel">
+          <div class="manual-entry-title">הוספת פריט לארוחה</div>
+          <div class="manual-entry-grid">
+            <div><label for="manualFoodName">מה אכלת?</label><input id="manualFoodName" type="text" list="savedFoodsList" autocomplete="off" placeholder="לדוגמה: רבע עוף בתנור"><datalist id="savedFoodsList"></datalist></div>
+            <div><label for="manualFoodQty">כמות</label><input id="manualFoodQty" type="text" autocomplete="off" placeholder="לדוגמה: 250 גרם"></div>
+            <div><label for="manualFoodKcal">קלוריות</label><input id="manualFoodKcal" type="number" min="0" step="1" inputmode="numeric" placeholder="לדוגמה: 380"></div>
+            <div class="manual-entry-save"><button type="button" id="saveManualFoodItem">הוסף לארוחה</button></div>
+          </div>
+          <div id="manualInlineStatus" class="manual-inline-status" aria-live="polite"></div>
+        </div>
+
+        <div class="manual-summary-strip">
+          <div class="manual-summary-box"><span>מספר פריטים</span><b id="manualFoodCount">0</b></div>
+          <div class="manual-summary-box"><span>סה״כ קלוריות</span><b><span id="manualFoodTotal">0</span> <small style="font-size:16px">קל׳</small></b></div>
+        </div>
+
+        <div class="manual-list-title"><span>פריטי הארוחה</span><span id="manualItemCountBadge" class="manual-item-count">הטבלה ריקה</span></div>
+        <div id="manualEmptyState" class="manual-empty-state"><span class="empty-icon">🥗</span>עדיין לא נוספו פריטים לארוחה.</div>
+        <div id="manualTableWrap" class="manual-table-wrap" style="display:none">
+          <table class="manual-food-table">
+            <thead><tr><th>סוג המזון</th><th>כמות</th><th>קלוריות</th><th>פעולות</th></tr></thead>
+            <tbody id="manualFoodRows"></tbody>
+            <tfoot><tr><td colspan="2">סה״כ</td><td id="manualFoodTotalFooter">0</td><td></td></tr></tfoot>
+          </table>
+        </div>
+
+        <input type="hidden" id="mealDesc"><input type="hidden" id="mealCalories"><input type="hidden" id="mealProtein" value="0"><textarea id="mealNote" hidden></textarea>
+
+        <div class="manual-food-actions">
+          <button type="button" id="saveMeal">שמור ארוחה</button>
+          <button type="button" id="clearManualFoodTable" class="secondary">נקה את הארוחה</button>
+        </div>
+        <div class="manual-save-hint">לאחר השמירה כל הפריטים יתנקו אוטומטית ותוכל להתחיל מיד את הארוחה הבאה.</div>
+        <div style="margin-top:12px"><button type="button" id="copyYesterday" class="secondary" style="width:100%">העתק ארוחות מאתמול</button></div>
+      </div>
+    </div>
+
+    <div class="section"><h2>ארוחות בתאריך הנבחר</h2><div id="mealList" class="list"></div></div>
+  </section>
+
+  <section id="workouts" class="page">
+    <h2>קוקפיט אימונים</h2>
+    <div class="card daily-summary-compact cockpit-workouts">
+      <div class="compact-summary-head">
+        <div>
+          <div class="form-section-title"><span class="section-icon">🏋️</span>סיכום אימונים שבועי</div>
+          <div class="cockpit-subtitle">שבעת הימים האחרונים, כולל היום</div>
+        </div>
+        <div id="workoutSummaryRange" class="compact-summary-date"></div>
+      </div>
+      <div class="kpi-grid">
+        <div class="compact-kpi"><div class="kpi-label">אימונים</div><div class="kpi-value"><span id="workoutSummaryCount">0</span></div></div>
+        <div class="compact-kpi"><div class="kpi-label">בוצעו</div><div class="kpi-value"><span id="workoutSummaryDone">0</span></div></div>
+        <div class="compact-kpi"><div class="kpi-label">משך</div><div class="kpi-value"><span id="workoutSummaryMinutes">0</span><span class="compact-unit">דק׳</span></div></div>
+        <div class="compact-kpi"><div class="kpi-label">נשרפו</div><div class="kpi-value"><span id="workoutSummaryCalories">0</span><span class="compact-unit">קל׳</span></div></div>
+        <div class="compact-kpi"><div class="kpi-label">מאמץ ממוצע</div><div class="kpi-value"><span id="workoutSummaryRpe">—</span></div></div>
+      </div>
+    </div>
+    <div class="card form-section workout-simple-card">
+      <div class="form-section-title"><span class="section-icon">✍️</span>עדכון אימון</div>
+      <div class="form-grid workout-simple-grid">
+        <div class="workout-datetime"><label for="workoutDateTime">תאריך ושעה</label><input type="datetime-local" id="workoutDateTime"><input type="hidden" id="workoutDate"><input type="hidden" id="workoutTime"></div>
+        <div><label for="workoutType">סוג אימון</label><select id="workoutType"><option>כוח</option><option>כדורסל</option><option>רכיבה</option><option>הליכה</option><option>ריצה</option><option>משולב</option><option>אחר</option></select></div>
+        <div><label for="workoutCalories">קלוריות שנשרפו</label><input type="number" id="workoutCalories" min="0" inputmode="numeric" placeholder="לדוגמה: 450"></div>
+        <div class="workout-note-field"><label for="workoutNote">הערות</label><textarea id="workoutNote" rows="3" placeholder="הערה חופשית על האימון"></textarea></div>
+      </div>
+      <div class="actions workout-save-actions"><button id="saveWorkout">שמור אימון</button></div>
+    </div>
+    <div class="section"><h2>אימונים בתאריך הנבחר</h2><div id="workoutList" class="list"></div></div>
+  </section>
+
+  <section id="weight" class="page">
+    <h2>קוקפיט משקל</h2>
+    <div class="card daily-summary-compact cockpit-weight">
+      <div class="compact-summary-head">
+        <div>
+          <div class="form-section-title"><span class="section-icon">⚖️</span>סיכום משקל</div>
+          <div class="cockpit-subtitle">תמונת מצב עדכנית ומגמה שבועית</div>
+        </div>
+        <div class="compact-summary-date">מעקב משקל</div>
+      </div>
+      <div class="kpi-grid">
+        <div class="compact-kpi"><div class="kpi-label">נוכחי</div><div class="kpi-value"><span id="currentWeight">—</span><span class="compact-unit">ק״ג</span></div></div>
+        <div class="compact-kpi"><div class="kpi-label">יעד</div><div class="kpi-value"><span id="targetWeightKpi">—</span><span class="compact-unit">ק״ג</span></div></div>
+        <div class="compact-kpi"><div class="kpi-label">מההתחלה</div><div class="kpi-value"><span id="fromStartKpi">—</span><span class="compact-unit">ק״ג</span></div></div>
+        <div class="compact-kpi"><div class="kpi-label">ב־7 ימים</div><div class="kpi-value"><span id="weekChangeKpi">—</span><span class="compact-unit">ק״ג</span></div></div>
+        <div class="compact-kpi"><div class="kpi-label">ממוצע 7 ימים</div><div class="kpi-value"><span id="avg7">—</span><span class="compact-unit">ק״ג</span></div></div>
+      </div>
+      <div style="display:none"><span id="weeklyRateKpi">—</span></div>
+    </div>
+    <div class="card progress-card section">
+      <div class="form-section-title"><span class="section-icon">🎯</span>התקדמות ליעד</div>
+      <div class="progress-track"><div id="weightProgressFill" class="progress-fill"></div></div>
+      <div class="progress-meta"><span id="weightProgressPct">0% הושלמו</span><span id="weightRemaining">— ק״ג נותרו</span></div>
+    </div>
+    <div class="card section">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+        <div class="form-section-title" style="margin:0"><span class="section-icon">🧭</span>מגמה</div>
+        <div id="weightTrendChip" class="trend-chip trend-flat">יציבות</div>
+      </div>
+      <div id="weightNarrative" class="weight-summary" style="margin-top:16px">הזן מדידות כדי להציג מגמה.</div>
+    </div>
+    <div class="card form-section section">
+      <div class="form-section-title"><span class="section-icon">⚖️</span>הזנת משקל</div>
+      <div class="form-grid">
+        <div><label>תאריך</label><input type="date" id="weightDate"></div>
+        <div><label>משקל בק״ג</label><input type="number" id="weightValue" step="0.1" min="0" placeholder="לדוגמה 99.5"></div>
+        <div class="full"><button id="saveWeight">שמור משקל</button></div>
+      </div>
+    </div>
+    <div class="card section">
+      <div class="form-section-title"><span class="section-icon">📊</span>גרף מגמת משקל</div>
+      <div class="chart-toolbar"><button class="chart-range active" data-days="7">7 ימים</button><button class="chart-range" data-days="30">30 ימים</button><button class="chart-range" data-days="90">90 ימים</button><button class="chart-range" data-days="all">הכול</button></div>
+      <canvas id="weightChart" width="1000" height="360"></canvas>
+    </div>
+    <div class="section"><h2>היסטוריית מדידות</h2><div id="weightList" class="list"></div></div>
+  </section>
+
+  <section id="settings" class="page">
+    <h2>הגדרות ונתונים</h2>
+    <div class="card form-grid">
+      <div><label>יעד קלורי יומי קבוע</label><input type="number" id="goalRest"><div class="helper-text">היעד אינו גדל בעקבות אימון. קלוריות האימון מקוזזות מהקלוריות שנאכלו.</div></div>
+      <input type="hidden" id="goalStrength">
+      <input type="hidden" id="goalBasketball">
+      <input type="hidden" id="goalCardio">
+      <div><label>משקל התחלתי</label><input type="number" step="0.1" id="startWeight"></div>
+      <div><label>משקל יעד</label><input type="number" step="0.1" id="targetWeight"></div>
+      <input type="hidden" id="balanceMethod">
+      <input type="hidden" id="tdee">
+      <input type="hidden" id="exercisePercent">
+      <div class="full actions"><button id="saveSettings">שמור הגדרות</button><button id="exportData" class="secondary">ייצוא גיבוי JSON</button><label class="btn secondary" style="display:inline-block"><input id="importData" type="file" accept="application/json" hidden>ייבוא גיבוי</label><button id="clearData" class="danger">מחיקת כל הנתונים</button></div>
+    </div>
+    <div class="card section"><h2 style="margin-top:0">סיכום שבועי</h2><div id="weeklySummary"></div></div>
+  </section>
+</div>
+<nav>
+  <button data-page="home" class="active">היום</button><button data-page="meals">ארוחות</button><button data-page="workouts">אימונים</button><button data-page="weight">משקל</button><button data-page="settings">הגדרות</button>
+</nav>
+<script>
+const $=id=>document.getElementById(id); const today=()=>{const d=new Date(),pad=n=>String(n).padStart(2,'0');return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`}; const nowTime=()=>new Date().toTimeString().slice(0,5); const nowDateTime=()=>{const d=new Date(),pad=n=>String(n).padStart(2,'0');return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`};
+const storeKey='calorieTrackerLocalV1';
+let db=JSON.parse(localStorage.getItem(storeKey)||'null')||{meals:[],workouts:[],weights:[],settings:{goalRest:1700,goalStrength:1900,goalBasketball:2100,goalCardio:2000,startWeight:100,targetWeight:95,balanceMethod:'goal',tdee:2300,exercisePercent:0},theme:'light'};
+if(!Array.isArray(db.foodLibrary))db.foodLibrary=[];
+function save(){localStorage.setItem(storeKey,JSON.stringify(db));renderAll()}
+function saveLocalOnly(){localStorage.setItem(storeKey,JSON.stringify(db))}
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7)}
+function esc(s=''){return String(s).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
+function daily(date){const meals=db.meals.filter(x=>x.date===date);const workouts=db.workouts.filter(x=>x.date===date&&x.status!=='בוטל');return{eaten:meals.reduce((a,x)=>a+(+x.calories||0),0),protein:meals.reduce((a,x)=>a+(+x.protein||0),0),burn:workouts.reduce((a,x)=>a+(+x.calories||0),0),workouts}}
+function goalFor(date){return +db.settings.goalRest||0}
+function calorieBalance(date){const day=daily(date),dailyTarget=goalFor(date),caloriesEaten=day.eaten,exerciseCalories=day.burn,netCalories=caloriesEaten-exerciseCalories,remainingCalories=dailyTarget-netCalories;return{...day,dailyTarget,caloriesEaten,exerciseCalories,netCalories,remainingCalories}}
+function renderHome(){const d=$('viewDate').value||today();const x=calorieBalance(d),remain=Math.round(x.remainingCalories),net=Math.round(x.netCalories),progress=Math.min(100,Math.max(0,net)/Math.max(1,x.dailyTarget)*100);$('kGoal').textContent=Math.round(x.dailyTarget);$('kEaten').textContent=x.caloriesEaten;$('kBurn').textContent=x.exerciseCalories;$('kNet').textContent=net;$('kRemain').textContent=remain;$('kRemain').style.color=remain>=0?'#fff':'#ffd6d6';let status='',cls='ok';if(net<0){status=`המאזן נטו שלילי: ${net} קל׳`;}else if(remain>0){status=`נותרו ${remain} קל׳ להיום`;}else if(remain===0){status='הגעת בדיוק ליעד היומי';}else{status=`חריגה של ${Math.abs(remain)} קל׳`;cls='bad';}$('dayStatus').textContent=status;$('dayStatus').className='status '+cls;$('goalBar').style.width=progress+'%';if($('todayProgressLabel'))$('todayProgressLabel').textContent=`${Math.round(progress)}% מהיעד היומי`;const meals=db.meals.filter(m=>m.date===d);if($('todayMealCount'))$('todayMealCount').textContent=meals.length?`${meals.length} ${meals.length===1?'ארוחה':'ארוחות'}`:'0 ארוחות';if($('todayMealNote'))$('todayMealNote').textContent=meals.length?`${Math.round(x.caloriesEaten)} קל׳ נשמרו היום`:'עדיין לא נשמרה ארוחה';const w=[...db.weights].sort((a,b)=>b.date.localeCompare(a.date))[0];$('lastWeight').textContent=w?`${w.value} ק״ג`:'—';if($('lastWeightDate'))$('lastWeightDate').textContent=w?`נמדד בתאריך ${new Date(w.date+'T00:00:00').toLocaleDateString('he-IL')}`:'עדיין לא נשמרה מדידה';$('todayWorkout').textContent=x.workouts.length?`${x.workouts.length} ${x.workouts.length===1?'אימון':'אימונים'}`:'אין אימון';if($('todayWorkoutNote'))$('todayWorkoutNote').textContent=x.workouts.length?x.workouts.map(w=>`${w.type} · ${w.minutes||0} דקות`).join(' | '):'אפשר להוסיף אימון בלחיצה אחת'}
+function renderMeals(){const d=$('mealDate').value||today();const day=calorieBalance(d),remain=Math.round(day.remainingCalories);if($('mealSummaryGoal'))$('mealSummaryGoal').textContent=Math.round(day.dailyTarget);if($('mealSummaryEaten'))$('mealSummaryEaten').textContent=Math.round(day.caloriesEaten);if($('mealSummaryBurn'))$('mealSummaryBurn').textContent=Math.round(day.exerciseCalories);if($('mealSummaryNet'))$('mealSummaryNet').textContent=Math.round(day.netCalories);if($('mealSummaryRemain')){$('mealSummaryRemain').textContent=remain>=0?remain:-Math.abs(remain);$('mealSummaryRemain').style.color=remain>=0?'#fff':'#ffd6d6'}if($('mealSummaryDate'))$('mealSummaryDate').textContent=new Date(d+'T00:00:00').toLocaleDateString('he-IL',{day:'2-digit',month:'2-digit',year:'numeric'});const arr=db.meals.filter(x=>x.date===d).sort((a,b)=>a.time.localeCompare(b.time));$('mealList').innerHTML=arr.length?arr.map(x=>{const displayDate=new Date(x.date+'T00:00:00').toLocaleDateString('he-IL',{day:'2-digit',month:'2-digit',year:'numeric'});return `<div class="item"><div class="item-main"><div class="item-title">${esc(x.type)} – ${x.calories} קל׳</div><div class="item-sub">${displayDate} · ${esc(x.time)}${x.desc?` · ${esc(x.desc)}`:''}${x.protein?` · ${x.protein} גרם חלבון`:''}</div></div><div class="right"><button class="secondary icon" onclick="duplicateMeal('${x.id}')">שכפל</button><button class="danger icon" onclick="del('meals','${x.id}')">מחק</button></div></div>`}).join(''):'<div class="muted">אין ארוחות בתאריך זה</div>'}
+function renderWorkouts(){
+  const all=[...db.workouts].sort((a,b)=>(b.date+b.time).localeCompare(a.date+a.time));
+  const selectedDate=($('workoutDate')&&$('workoutDate').value)||today();
+  const arr=all.filter(x=>x.date===selectedDate).sort((a,b)=>(b.time||'').localeCompare(a.time||''));
+  if($('workoutList'))$('workoutList').innerHTML=arr.length?arr.map(x=>{const displayDate=new Date(x.date+'T00:00:00').toLocaleDateString('he-IL',{day:'2-digit',month:'2-digit',year:'numeric'});return `<div class="item"><div class="item-main"><div class="item-title">${esc(x.type)} – ${x.calories||0} קל׳</div><div class="item-sub">${displayDate} · ${esc(x.time||'')}${x.note?` · ${esc(x.note)}`:''}</div></div><button class="danger icon" onclick="del('workouts','${x.id}')">מחק</button></div>`}).join(''):'<div class="muted">אין אימונים בתאריך זה</div>';
+  const end=new Date();end.setHours(23,59,59,999);const start=new Date(end);start.setDate(start.getDate()-6);start.setHours(0,0,0,0);
+  const week=all.filter(x=>{const d=new Date(x.date+'T00:00:00');return d>=start&&d<=end&&x.status!=='בוטל'});
+  const done=week.filter(x=>x.status==='בוצע'||x.status==='בוצע חלקית');
+  const minutes=week.reduce((a,x)=>a+(+x.minutes||0),0),calories=week.reduce((a,x)=>a+(+x.calories||0),0);
+  const rpes=week.map(x=>+x.rpe).filter(x=>x>0),avgRpe=rpes.length?rpes.reduce((a,b)=>a+b,0)/rpes.length:null;
+  if($('workoutSummaryCount'))$('workoutSummaryCount').textContent=week.length;
+  if($('workoutSummaryDone'))$('workoutSummaryDone').textContent=done.length;
+  if($('workoutSummaryMinutes'))$('workoutSummaryMinutes').textContent=Math.round(minutes);
+  if($('workoutSummaryCalories'))$('workoutSummaryCalories').textContent=Math.round(calories);
+  if($('workoutSummaryRpe'))$('workoutSummaryRpe').textContent=avgRpe!==null?avgRpe.toFixed(1):'—';
+  if($('workoutSummaryRange'))$('workoutSummaryRange').textContent=`${start.toLocaleDateString('he-IL',{day:'2-digit',month:'2-digit'})}–${end.toLocaleDateString('he-IL',{day:'2-digit',month:'2-digit'})}`;
+}
+let weightChartDays=7;
+function renderWeights(){
+  const arr=[...db.weights].sort((a,b)=>b.date.localeCompare(a.date));
+  $('weightList').innerHTML=arr.map(x=>`<div class="item"><div><div class="item-title">${x.value} ק״ג</div><div class="item-sub">${x.date}</div></div><button class="danger icon" onclick="del('weights','${x.id}')">מחק</button></div>`).join('')||'<div class="muted empty-state">אין נתוני משקל</div>';
+  const latest=arr[0], current=latest?+latest.value:null, target=+db.settings.targetWeight||0, start=+db.settings.startWeight||0;
+  $('currentWeight').textContent=current!==null?current.toFixed(1):'—';
+  if($('targetWeightKpi'))$('targetWeightKpi').textContent=target?target.toFixed(1):'—';
+  const chronological=[...db.weights].sort((a,b)=>a.date.localeCompare(b.date));
+  const now=new Date(); const cutoff7=new Date(now); cutoff7.setDate(cutoff7.getDate()-6);
+  const vals7=chronological.filter(x=>new Date(x.date+'T00:00:00')>=cutoff7).map(x=>+x.value);
+  const avg7=vals7.length?vals7.reduce((a,b)=>a+b,0)/vals7.length:null;
+  $('avg7').textContent=avg7!==null?avg7.toFixed(1):'—';
+  const oldCut=new Date(now); oldCut.setDate(oldCut.getDate()-7);
+  const older=[...chronological].filter(x=>new Date(x.date+'T00:00:00')<=oldCut).pop();
+  const weekChange=current!==null&&older?current-(+older.value):null;
+  if($('weekChangeKpi'))$('weekChangeKpi').textContent=weekChange!==null?`${weekChange>0?'+':''}${weekChange.toFixed(1)}`:'—';
+  const fromStart=current!==null&&start?current-start:null;
+  if($('fromStartKpi'))$('fromStartKpi').textContent=fromStart!==null?`${fromStart>0?'+':''}${fromStart.toFixed(1)}`:'—';
+  let weeklyRate=null;
+  if(chronological.length>=2){const first=chronological[0],last=chronological.at(-1),days=Math.max(1,(new Date(last.date)-new Date(first.date))/86400000);weeklyRate=((+last.value)-(+first.value))*7/days;}
+  if($('weeklyRateKpi'))$('weeklyRateKpi').textContent=weeklyRate!==null?`${weeklyRate>0?'+':''}${weeklyRate.toFixed(1)}`:'—';
+  let progress=0,remaining=null;
+  if(current!==null&&start&&target&&start!==target){progress=Math.max(0,Math.min(100,((start-current)/(start-target))*100));remaining=Math.abs(current-target);}
+  if($('weightProgressFill'))$('weightProgressFill').style.width=progress+'%';
+  if($('weightProgressPct'))$('weightProgressPct').textContent=`${Math.round(progress)}% הושלמו`;
+  if($('weightRemaining'))$('weightRemaining').textContent=remaining!==null?`${remaining.toFixed(1)} ק״ג נותרו`:'— ק״ג נותרו';
+  const chip=$('weightTrendChip');
+  if(chip){chip.className='trend-chip '+(weekChange===null||Math.abs(weekChange)<0.2?'trend-flat':weekChange<0?'trend-down':'trend-up');chip.textContent=weekChange===null||Math.abs(weekChange)<0.2?'יציבות':weekChange<0?'ירידה':'עלייה';}
+  if($('weightNarrative')){
+    if(current===null){$('weightNarrative').textContent='הזן מדידות כדי להציג מגמה.'}
+    else {const changeText=fromStart===null?'אין נתון התחלה':fromStart<0?`ירדת ${Math.abs(fromStart).toFixed(1)} ק״ג מאז תחילת המעקב`:`עלית ${fromStart.toFixed(1)} ק״ג מאז תחילת המעקב`;const remainText=remaining!==null?`נותרו ${remaining.toFixed(1)} ק״ג ליעד`:'לא הוגדר יעד';const weekText=weekChange===null?'אין עדיין השוואה שבועית':Math.abs(weekChange)<0.2?'המשקל השבועי יציב':weekChange<0?`ירידה של ${Math.abs(weekChange).toFixed(1)} ק״ג ב־7 ימים`:`עלייה של ${weekChange.toFixed(1)} ק״ג ב־7 ימים`;$('weightNarrative').textContent=`${changeText}. ${remainText}. ${weekText}.`;}
+  }
+  drawChart();
+}
+function drawChart(){
+  const c=$('weightChart'),ctx=c.getContext('2d');
+  const all=[...db.weights].sort((a,b)=>a.date.localeCompare(b.date));
+  let arr=all;
+  if(weightChartDays!=='all'){const cut=new Date();cut.setDate(cut.getDate()-(+weightChartDays-1));arr=all.filter(x=>new Date(x.date+'T00:00:00')>=cut)}
+  const rect=c.getBoundingClientRect(),ratio=window.devicePixelRatio||1;c.width=Math.max(640,Math.round(rect.width*ratio));c.height=Math.round(330*ratio);ctx.setTransform(ratio,0,0,ratio,0,0);
+  const W=c.width/ratio,H=c.height/ratio;ctx.clearRect(0,0,W,H);ctx.fillStyle=getComputedStyle(document.body).getPropertyValue('--card');ctx.fillRect(0,0,W,H);
+  const text=getComputedStyle(document.body).getPropertyValue('--muted').trim(),primary=getComputedStyle(document.body).getPropertyValue('--primary').trim(),ok=getComputedStyle(document.body).getPropertyValue('--ok').trim(),border=getComputedStyle(document.body).getPropertyValue('--border').trim();
+  if(arr.length<2){ctx.fillStyle=text;ctx.font='700 20px Arial';ctx.textAlign='center';ctx.fillText('יש להזין לפחות שתי מדידות',W/2,H/2);return}
+  const vals=arr.map(x=>+x.value),target=+db.settings.targetWeight||0,min=Math.min(...vals,target||Infinity)-1,max=Math.max(...vals,target||-Infinity)+1,pad={l:50,r:22,t:24,b:42};
+  ctx.strokeStyle=border;ctx.lineWidth=1;for(let i=0;i<4;i++){const y=pad.t+i*(H-pad.t-pad.b)/3;ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(W-pad.r,y);ctx.stroke()}
+  const xy=(v,i)=>[pad.l+i*(W-pad.l-pad.r)/(arr.length-1),pad.t+(max-v)*(H-pad.t-pad.b)/(max-min)];
+  if(target){const y=xy(target,0)[1];ctx.setLineDash([7,7]);ctx.strokeStyle=ok;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(W-pad.r,y);ctx.stroke();ctx.setLineDash([]);ctx.fillStyle=ok;ctx.font='700 16px Arial';ctx.textAlign='right';ctx.fillText(`יעד ${target}`,W-pad.r,y-7)}
+  ctx.strokeStyle=primary;ctx.lineWidth=4;ctx.lineJoin='round';ctx.beginPath();arr.forEach((x,i)=>{const [px,py]=xy(+x.value,i);i?ctx.lineTo(px,py):ctx.moveTo(px,py)});ctx.stroke();
+  ctx.fillStyle=primary;arr.forEach((x,i)=>{const [px,py]=xy(+x.value,i);ctx.beginPath();ctx.arc(px,py,4,0,Math.PI*2);ctx.fill()});
+  ctx.fillStyle=text;ctx.font='700 15px Arial';ctx.textAlign='center';const step=Math.max(1,Math.ceil(arr.length/5));arr.forEach((x,i)=>{if(i%step===0||i===arr.length-1)ctx.fillText(x.date.slice(5),xy(+x.value,i)[0],H-14)});
+}
+function renderSettings(){for(const k of Object.keys(db.settings))if($(k))$(k).value=db.settings[k];const end=new Date(),start=new Date();start.setDate(end.getDate()-6);let eaten=0,burn=0,net=0,remaining=0,targets=0,mins=0,count=0,days=0;for(let d=new Date(start);d<=end;d.setDate(d.getDate()+1)){const x=calorieBalance(d.toISOString().slice(0,10));eaten+=x.caloriesEaten;burn+=x.exerciseCalories;net+=x.netCalories;remaining+=x.remainingCalories;targets+=x.dailyTarget;mins+=x.workouts.reduce((a,w)=>a+(+w.minutes||0),0);count+=x.workouts.length;days++}const avg=n=>Math.round(n/Math.max(1,days));const balanceText=avg(remaining)>=0?`ממוצע נותר ליעד: <b>${avg(remaining)}</b>`:`ממוצע חריגה נטו: <b>${Math.abs(avg(remaining))}</b>`;$('weeklySummary').innerHTML=`ממוצע יעד יומי קבוע: <b>${avg(targets)}</b><br>ממוצע קלוריות שנאכלו: <b>${avg(eaten)}</b><br>ממוצע קלוריות אימון: <b>${avg(burn)}</b><br>ממוצע קלוריות נטו: <b>${avg(net)}</b><br>${balanceText}<br>מספר אימונים: <b>${count}</b><br>משך אימונים: <b>${mins} דקות</b>`}
+function renderAll(){renderHome();renderMeals();renderWorkouts();renderWeights();renderSettings();document.documentElement.dataset.theme=db.theme;$('themeBtn').textContent=db.theme==='dark'?'מצב בהיר':'מצב כהה'}
+window.del=(type,id)=>{if(confirm('למחוק את הרשומה?')){db[type]=db[type].filter(x=>x.id!==id);save()}};window.duplicateMeal=id=>{const x=db.meals.find(m=>m.id===id);if(x){db.meals.push({...x,id:uid(),date:$('mealDate').value||today()});save()}}
+$('saveMeal').onclick=()=>{syncMealDateTime();const pending=getManualEntry();if(pending.name||pending.qty||pending.kcal){if(pending.name&&pending.kcal>0)saveManualFoodItem();else{return setManualStatus('יש להשלים את הפריט הנוכחי לפני שמירת הארוחה.','error')}}const rows=getManualFoodRows();if(!rows.length)return setManualStatus('יש להוסיף לפחות פריט אחד לארוחה.','error');const total=Math.round(rows.reduce((sum,row)=>sum+row.kcal,0));const desc=rows.map(row=>`${row.name}${row.qty?' — '+row.qty:''}`).join(', ');db.meals.push({id:uid(),date:$('mealDate').value,time:$('mealTime').value,type:$('mealType').value,desc,calories:total,protein:0,note:''});save();renderMeals();clearManualFoodTable(true);const summary=$('dailyMealSummary');if(summary){summary.classList.remove('summary-updated');void summary.offsetWidth;summary.classList.add('summary-updated')}setManualStatus('הארוחה נשמרה בהצלחה. אפשר להתחיל להזין את הארוחה הבאה.','success');$('manualFoodName').focus()};
+$('copyYesterday').onclick=()=>{syncMealDateTime();const d=new Date($('mealDate').value+'T00:00:00');d.setDate(d.getDate()-1);const y=d.toISOString().slice(0,10),dest=$('mealDate').value,items=db.meals.filter(x=>x.date===y);if(!items.length)return alert('לא נמצאו ארוחות מאתמול');items.forEach(x=>db.meals.push({...x,id:uid(),date:dest}));save()};
+$('saveWorkout').onclick=()=>{syncWorkoutDateTime();const calories=+$('workoutCalories').value||0;if(calories<=0)return alert('יש להזין את מספר הקלוריות שנשרפו');db.workouts.push({id:uid(),date:$('workoutDate').value,time:$('workoutTime').value,type:$('workoutType').value,minutes:0,calories,rpe:0,avgHr:0,maxHr:0,status:'בוצע',note:$('workoutNote').value.trim()});$('workoutCalories').value='';$('workoutNote').value='';save();$('workoutCalories').focus()};
+$('saveWeight').onclick=()=>{if(!$('weightValue').value)return alert('יש להזין משקל');db.weights=db.weights.filter(x=>x.date!==$('weightDate').value);db.weights.push({id:uid(),date:$('weightDate').value,value:+$('weightValue').value});$('weightValue').value='';save()};
+$('saveSettings').onclick=()=>{for(const k of Object.keys(db.settings))if($(k))db.settings[k]=['balanceMethod'].includes(k)?$(k).value:+$(k).value;save();alert('ההגדרות נשמרו')};
+$('exportData').onclick=()=>{const blob=new Blob([JSON.stringify(db,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='calorie-tracker-backup.json';a.click();URL.revokeObjectURL(a.href)};
+$('importData').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{db=JSON.parse(r.result);save();alert('הגיבוי יובא בהצלחה')}catch{alert('קובץ גיבוי לא תקין')}};r.readAsText(f)};
+$('clearData').onclick=()=>{if(confirm('למחוק את כל הנתונים לצמיתות?')){localStorage.removeItem(storeKey);location.reload()}};
+$('themeBtn').onclick=()=>{db.theme=db.theme==='dark'?'light':'dark';save()};
+function syncMealDateTime(){const value=$('mealDateTime').value||nowDateTime();const [date,time]=value.split('T');$('mealDate').value=date||today();$('mealTime').value=(time||nowTime()).slice(0,5)}
+function syncWorkoutDateTime(){const value=$('workoutDateTime').value||nowDateTime();const [date,time]=value.split('T');$('workoutDate').value=date||today();$('workoutTime').value=(time||nowTime()).slice(0,5)}
+$('viewDate').onchange=renderHome;$('mealDate').onchange=renderMeals;
+$('mealDateTime').addEventListener('change',()=>{syncMealDateTime();renderMeals();renderHome()});
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));$(b.dataset.page).classList.add('active');b.classList.add('active');renderAll()});
+document.querySelectorAll('[data-go-page]').forEach(b=>b.onclick=()=>{const page=b.dataset.goPage;const navBtn=document.querySelector(`nav button[data-page="${page}"]`);if(navBtn)navBtn.click()});
+$('mealDate').addEventListener('change',()=>{renderMeals();renderHome()});
+document.querySelectorAll('.chart-range').forEach(b=>b.onclick=()=>{document.querySelectorAll('.chart-range').forEach(x=>x.classList.remove('active'));b.classList.add('active');weightChartDays=b.dataset.days==='all'?'all':+b.dataset.days;drawChart()});
+window.addEventListener('resize',()=>{if($('weight').classList.contains('active'))drawChart()});
+
+
+/* ===== טבלת הזנה ידנית של רכיבי הארוחה ===== */
+function normalizeFoodName(value){return String(value||'').trim().replace(/\s+/g,' ').toLocaleLowerCase('he-IL')}
+function renderSavedFoodsList(){
+  const list=$('savedFoodsList');
+  if(!list)return;
+  list.innerHTML=(db.foodLibrary||[])
+    .slice()
+    .sort((a,b)=>String(a.name).localeCompare(String(b.name),'he'))
+    .map(item=>`<option value="${esc(item.name)}">${esc(item.qty||'')}${item.qty?' · ':''}${Math.round(+item.kcal||0).toLocaleString('he-IL')} קל׳</option>`)
+    .join('');
+}
+function rememberFood(item){
+  const key=normalizeFoodName(item.name);
+  if(!key||!(+item.kcal>0))return;
+  const saved={name:String(item.name).trim(),qty:String(item.qty||'').trim(),kcal:Math.round(+item.kcal),updatedAt:Date.now()};
+  const index=db.foodLibrary.findIndex(x=>normalizeFoodName(x.name)===key);
+  if(index>=0)db.foodLibrary[index]={...db.foodLibrary[index],...saved};else db.foodLibrary.push(saved);
+  saveLocalOnly();
+  renderSavedFoodsList();
+}
+function applySavedFoodDefaults(){
+  const key=normalizeFoodName($('manualFoodName').value);
+  if(!key)return;
+  const saved=(db.foodLibrary||[]).find(x=>normalizeFoodName(x.name)===key);
+  if(!saved)return;
+  $('manualFoodName').value=saved.name;
+  $('manualFoodQty').value=saved.qty||'';
+  $('manualFoodKcal').value=saved.kcal||'';
+  updateManualFoodTotal();
+  setManualStatus(`הנתונים האחרונים של „${saved.name}” מולאו אוטומטית.`,'success');
+}
+let manualFoodRowCounter=0;
+let manualEditingRowId=null;
+function setManualStatus(message,type=''){const el=$('manualInlineStatus');el.textContent=message||'';el.className='manual-inline-status'+(type?' '+type:'')}
+function manualFoodRowTemplate(item,id){return `<tr class="manual-food-saved-row" data-row-id="${id}" data-name="${esc(item.name)}" data-qty="${esc(item.qty)}" data-kcal="${item.kcal}">
+  <td>${esc(item.name)}</td><td>${esc(item.qty||'—')}</td><td>${Math.round(item.kcal).toLocaleString('he-IL')}</td>
+  <td><div class="manual-row-actions"><button type="button" class="manual-food-edit">ערוך</button><button type="button" class="danger manual-food-delete" aria-label="מחק ${esc(item.name)}">מחק</button></div></td>
+</tr>`}
+function getManualEntry(){return {name:$('manualFoodName').value.trim(),qty:$('manualFoodQty').value.trim(),kcal:Math.max(0,Number($('manualFoodKcal').value)||0)}}
+function clearManualEntry(focus=true){$('manualFoodName').value='';$('manualFoodQty').value='';$('manualFoodKcal').value='';manualEditingRowId=null;$('saveManualFoodItem').textContent='הוסף לארוחה';$('manualEditingBanner').classList.remove('show');if(focus)$('manualFoodName').focus()}
+function bindManualRow(row){row.querySelector('.manual-food-delete').onclick=()=>{const name=row.dataset.name;if(!confirm(`למחוק את „${name}” מהארוחה?`))return;row.remove();if(String(manualEditingRowId)===row.dataset.rowId)clearManualEntry(false);updateManualFoodTotal();setManualStatus(`הפריט „${name}” נמחק.`,'success')};row.querySelector('.manual-food-edit').onclick=()=>{manualEditingRowId=row.dataset.rowId;$('manualFoodName').value=row.dataset.name||'';$('manualFoodQty').value=row.dataset.qty||'';$('manualFoodKcal').value=row.dataset.kcal||'';$('saveManualFoodItem').textContent='עדכן פריט';$('manualEditingBanner').classList.add('show');$('manualFoodName').focus();setManualStatus('ערוך את הפרטים ולחץ על „עדכן פריט”.')}}
+function saveManualFoodItem(){const item=getManualEntry();if(!item.name){setManualStatus('יש להזין את סוג המזון.','error');$('manualFoodName').focus();return}if(item.kcal<=0){setManualStatus('יש להזין מספר קלוריות גדול מאפס.','error');$('manualFoodKcal').focus();return}rememberFood(item);if(manualEditingRowId!==null){const row=$('manualFoodRows').querySelector(`[data-row-id="${manualEditingRowId}"]`);if(row){const id=manualEditingRowId;row.outerHTML=manualFoodRowTemplate(item,id);bindManualRow($('manualFoodRows').querySelector(`[data-row-id="${id}"]`));setManualStatus(`הפריט „${item.name}” עודכן.`,'success')}}else{const id=++manualFoodRowCounter;$('manualFoodRows').insertAdjacentHTML('beforeend',manualFoodRowTemplate(item,id));bindManualRow($('manualFoodRows').lastElementChild);setManualStatus(`„${item.name}” נוסף לארוחה. אפשר להזין את הפריט הבא.`,'success')}updateManualFoodTotal();clearManualEntry()}
+function getManualFoodRows(){return [...$('manualFoodRows').querySelectorAll('.manual-food-saved-row')].map(row=>({name:row.dataset.name||'',qty:row.dataset.qty||'',kcal:Math.max(0,Number(row.dataset.kcal)||0)}))}
+function updateManualFoodTotal(){const rows=getManualFoodRows();const total=rows.reduce((sum,row)=>sum+row.kcal,0);const formatted=Math.round(total).toLocaleString('he-IL');$('manualFoodTotal').textContent=formatted;$('manualFoodTotalFooter').textContent=formatted;$('manualFoodCount').textContent=rows.length.toLocaleString('he-IL');$('manualItemCountBadge').textContent=rows.length?`${rows.length} ${rows.length===1?'פריט':'פריטים'}`:'הטבלה ריקה';$('manualEmptyState').style.display=rows.length?'none':'block';$('manualTableWrap').style.display=rows.length?'block':'none';$('saveMeal').disabled=false;$('clearManualFoodTable').disabled=false;return total}
+function clearManualFoodTable(skipConfirm=false){const hasData=getManualFoodRows().length||$('manualFoodName').value||$('manualFoodQty').value||$('manualFoodKcal').value;if(hasData&&!skipConfirm&&!confirm('לנקות את כל פריטי הארוחה ואת שדות ההזנה?'))return;$('manualFoodRows').innerHTML='';clearManualEntry(false);updateManualFoodTotal();if(!skipConfirm)setManualStatus('הארוחה נוקתה. אפשר להתחיל מחדש.','success');$('manualFoodName').focus()}
+$('saveManualFoodItem').onclick=saveManualFoodItem;
+['manualFoodName','manualFoodQty','manualFoodKcal'].forEach(id=>$(id).addEventListener('input',updateManualFoodTotal));
+$('manualFoodName').addEventListener('change',applySavedFoodDefaults);
+$('manualFoodName').addEventListener('blur',applySavedFoodDefaults);
+$('manualFoodKcal').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();saveManualFoodItem()}});
+$('clearManualFoodTable').onclick=()=>clearManualFoodTable(false);renderSavedFoodsList();updateManualFoodTotal();
+
+$('workoutDateTime').addEventListener('change',()=>{syncWorkoutDateTime();renderWorkouts();renderHome()});
+const d=today();['viewDate','mealDate','workoutDate','weightDate'].forEach(id=>$(id).value=d);$('mealDateTime').value=nowDateTime();syncMealDateTime();$('workoutDateTime').value=nowDateTime();syncWorkoutDateTime();renderAll();
+window.addEventListener('pageshow',()=>{const currentToday=today();if($('viewDate')){$('viewDate').value=currentToday;renderHome();}});
+</script>
+
+<script>
+let deferredInstallPrompt=null;
+const installPwaBtn=document.getElementById('installPwaBtn');
+window.addEventListener('beforeinstallprompt',(event)=>{
+  event.preventDefault();
+  deferredInstallPrompt=event;
+  installPwaBtn?.classList.add('show');
+});
+installPwaBtn?.addEventListener('click',async()=>{
+  if(!deferredInstallPrompt)return;
+  deferredInstallPrompt.prompt();
+  await deferredInstallPrompt.userChoice;
+  deferredInstallPrompt=null;
+  installPwaBtn.classList.remove('show');
+});
+window.addEventListener('appinstalled',()=>{
+  deferredInstallPrompt=null;
+  installPwaBtn?.classList.remove('show');
+});
+if('serviceWorker' in navigator && location.protocol.startsWith('http')){
+  window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(console.error));
+}
+</script>
+</body>
+</html>
